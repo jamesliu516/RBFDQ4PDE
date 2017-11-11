@@ -3,7 +3,7 @@
 %   Copyright (C) 2004-2012 Per-Olof Persson. See COPYRIGHT.TXT for details.
 clear 
 clc
-global p t meshden
+global ppp ttt meshden
 rand('state',1); % Always the same results
 set(gcf,'rend','z');
 
@@ -14,8 +14,8 @@ fprintf('Uniform Mesh on Unit Circle\n');
 echo on
 ra=1;
 fd=@(p) sqrt(sum(p.^2,2))-ra;
-[p,t]=distmesh2d(fd,@huniform,meshden,[-ra,-ra;ra,ra],[]);
+[ppp,ttt]=distmesh2d(fd,@huniform,meshden,[-ra,-ra;ra,ra],[]);
 echo off
-fstats(p,t);
+fstats(ppp,ttt);
 fprintf('(Done mesh generation.)\n\n')
 
