@@ -4,6 +4,7 @@
 clear 
 clc
 global ppp ttt meshden
+%meshden=0.1; %defaut
 rand('state',1); % Always the same results
 set(gcf,'rend','z');
 

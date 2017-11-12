@@ -2,7 +2,7 @@
 clear all
 clf
 global ppp ttt meshden
-meshden=0.05;
+meshden=0.1;
 
 generateCircle; % call mesh generation
 %ttt: the element array，单元数组显示单元有哪些点组成
@@ -57,16 +57,16 @@ end
 
 for ipoin=1:npoin
     for ielem=1:n_elemPoint(ipoin)
-        ti=ttt(elemPoint(ipoin,ielem));
+        ti=ttt(elemPoint(ipoin,ielem),:);
         for i=1:threeP
             if ti(i) ~= ipoin
                 if n_pointPoint(ipoin)==0
                     n_pointPoint(ipoin)=n_pointPoint(ipoin)+1;
-                    pointsPoin(ipoin,n_pointPoint(ipoin))=ti(i);
+                    pointsPoint(ipoin,n_pointPoint(ipoin))=ti(i);
                 else
                     flag=0;
                     for j=1:n_pointPoint(ipoin)
-                        if pointsPoin(ipoin,j)==ti(i)
+                        if pointsPoint(ipoin,j)==ti(i)
                             flag=1;
                             break
                         end
@@ -74,7 +74,17 @@ for ipoin=1:npoin
                     
                     if flag==0                        
                         n_pointPoint(ipoin)=n_pointPoint(ipoin)+1;
-                        pointsPoin(ipoin,n_pointPoint(ipoin))=ti(i);
+                        if n_pointPoint(ipoin)>maxPoints                          
+                            disp('the number of points with common point more than maxPoints');
+                            return;
+                        end                        
+                        pointsPoint(ipoin,n_pointPoint(ipoin))=ti(i);
+                    end
+                end
+            end
+        end
+    end
+end
                     
                    
                
