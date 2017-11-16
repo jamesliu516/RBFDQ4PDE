@@ -3,8 +3,9 @@
 %   Copyright (C) 2004-2012 Per-Olof Persson. See COPYRIGHT.TXT for details.
 clear 
 clc
+cd ../
 global ppp ttt meshden
-meshden=0.05; %defaut
+%meshden=0.05; %defaut
 rand('state',1); % Always the same results
 set(gcf,'rend','z');
 
@@ -19,4 +20,5 @@ fd=@(p) sqrt(sum(p.^2,2))-ra;
 echo off
 fstats(ppp,ttt);
 fprintf('(Done mesh generation.)\n\n')
+cd rbfdq
 
