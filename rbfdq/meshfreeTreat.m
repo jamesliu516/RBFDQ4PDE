@@ -1,7 +1,7 @@
 
 clear all
 clf
-global ppp ttt meshden
+global ppp ttt meshden pointboun
 meshden=0.1;
 
 generateCircle; % call mesh generation
@@ -24,6 +24,8 @@ n_pointPoint=zeros(npoin,1); %% the number of point(support points) with common 
 %包含点的数目第一层单元的
 typPoints=zeros(npoin,1); %% the type of the node: 0 inner point, 1 Dirchlet Boundary point
                           %2 Neumann Boundary condition point
+                          
+typPoints(pointboun)=1;
 
 %pointElem=[]; % point with elements
 
@@ -131,6 +133,7 @@ for ipn=1:npoin   %点ipn
         end
     end
 end
+
                     
                             
                             
