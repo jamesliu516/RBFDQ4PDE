@@ -74,10 +74,10 @@ for ipoin=1:npoin
     sumerr2=sumerr2+((rt-adfy1(ipoin))/(abs(adfy1(ipoin))+1e-8))^2;  
 end
 
+ sumerr2=sqrt(sumerr2/npoin);
+ 
 % errvec=abs(cadfy1-adfy1);
-% [err,id]=max(errvec);
-% 
-% sumerr2=sqrt(sumerr2/npoin);
+% [err,id]=max(errvec); 
 % 
 % sum(pointboun==id)
 % find(pointboun==id)
