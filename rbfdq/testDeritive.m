@@ -85,12 +85,7 @@ end
 % max(errvec)
 %     
     
-        
-        
 
-
-
-%function [rder]=mqrbf(pxy,xy,c)
 
 
 
