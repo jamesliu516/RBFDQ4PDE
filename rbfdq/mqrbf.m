@@ -32,7 +32,7 @@ for i=1:np
     scaling = max(scaling,sqrt(dx^2+dy^2));
 end
 
-scaling = scaling *2;
+scaling = scaling*2;
 
 a=zeros(nd,nd);
 b=zeros(nd,5);

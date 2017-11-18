@@ -1,5 +1,5 @@
 
-global ppp ttt meshden pointboun
+global ppp ttt  pointboun typPoints
 %pointboun: boundary node number
 global n_pointPoint2 pointsPoint2
 %meshden=0.025;
