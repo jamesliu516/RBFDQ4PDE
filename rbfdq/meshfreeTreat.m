@@ -1,8 +1,8 @@
 
-clear all
-clf
 global ppp ttt meshden pointboun
-meshden=0.1;
+%pointboun: boundary node number
+global n_pointPoint2 pointsPoint2
+%meshden=0.025;
 
 generateCircle; % call mesh generation
 %ttt: the element array，单元数组显示单元有哪些点组成
@@ -134,7 +134,10 @@ for ipn=1:npoin   %点ipn
     end
 end
 
-                    
+clear n_pointPoint;
+clear pointsPoint;
+clear elemPoint;
+
                             
                             
                             
