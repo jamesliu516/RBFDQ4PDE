@@ -10,19 +10,23 @@ function [rder]=mqrbf(pxy,xy,c)
 % c---- np: the number of supporting points
 % c---- A: coefficient matrix constructed from the basis functions
 % c---- b: derivative vectors of the basis functions 
+% c---- rder(:,1) coefficients for u_x, rder(:,2) for u_y, 
+% c---- rder(:,3) d^2u/dy^2  rder(:,4) d^2u/dx^2   rder(:,5) d^2u/dxdy
 
 np=size(pxy,1);
 nd=np+1;
-rder=zeros(nd,5);
+%rder=zeros(nd,5);
 pn=zeros(nd,2);
+pn(1:np,:)=pxy;
+pn(nd,:)=xy;
 
-for i=1:nd
-    if i~= nd
-        pn(i,:)=pxy(i,:);
-    else
-        pn(i,:)=xy;
-    end
-end
+% for i=1:nd
+%     if i~= nd
+%         pn(i,:)=pxy(i,:);
+%     else
+%         pn(i,:)=xy;
+%     end
+% end
 
 scaling=0.0;
 
@@ -32,7 +36,7 @@ for i=1:np
     scaling = max(scaling,sqrt(dx^2+dy^2));
 end
 
-scaling = scaling*2;
+scaling = scaling*2.0;
 
 a=zeros(nd,nd);
 b=zeros(nd,5);
@@ -58,20 +62,22 @@ for i=1:nd-1
     b(i,2)=dy/ffunc;
     b(i,3)=(dy*dy+c)/(ffunc^3.0)-1.d0/sqrt(c);
     b(i,5)=-dx*dy/(ffunc^3.0);
-    b(i,4)=(dx*dx+c)/(ffunc^3.)-1.d0/sqrt(c);
+    b(i,4)=(dx*dx+c)/(ffunc^3.)-1.d0/sqrt(c); %
 end
 
-b(nd,1)=0.0;
-b(nd,2)=0.0;
-b(nd,3)=0.0;
-b(nd,4)=0.0;
-b(nd,5)=0.0;
+% b(nd,1)=0.0;
+% b(nd,2)=0.0;
+% b(nd,3)=0.0;
+% b(nd,4)=0.0;
+% b(nd,5)=0.0;
+b(nd,1:5)=0.0;
 
-for i=1:nd
-    for j=1:5
-        rder(i,j)=b(i,j);
-    end
-end
+rder=b;
+% for i=1:nd
+%     for j=1:5
+%         rder(i,j)=b(i,j);
+%     end
+% end
 
 rder=a\rder;
 

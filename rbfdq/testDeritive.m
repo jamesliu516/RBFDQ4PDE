@@ -49,6 +49,7 @@ for ipoin=1:npoin
 end
 %rt=0;
 sumerr=0.0;
+sumexact=0.0;
 for ipoin=1:npoin
     att=rder{ipoin};
     rt=0.0;
@@ -56,13 +57,15 @@ for ipoin=1:npoin
        rt=rt+ att(jk,1)*af(pointsPoint2(ipoin,jk));
     end
     rt=rt+att(n_pointPoint2(ipoin)+1,1)*af(ipoin);
-    sumerr=sumerr+((rt-adfx1(ipoin))/(abs(adfx1(ipoin))+1e-8))^2;
+    sumerr=sumerr+(rt-adfx1(ipoin))^2;
+    sumexact=sumexact+abs(adfx1(ipoin))^2;
 end
 
-sumerr=sqrt(sumerr/npoin);
+sumerr=sqrt(sumerr/sumexact);
 
 rt=0;
 sumerr2=0.0;
+sumexact2=0.0;
 for ipoin=1:npoin
     att1=rder{ipoin};
     rt=0.0;
@@ -71,10 +74,11 @@ for ipoin=1:npoin
     end
     rt=rt+att1(n_pointPoint2(ipoin)+1,2)*af(ipoin);
     cadfy1(ipoin)=rt;
-    sumerr2=sumerr2+((rt-adfy1(ipoin))/(abs(adfy1(ipoin))+1e-8))^2;  
+    sumerr2=sumerr2+(rt-adfy1(ipoin))^2; 
+    sumexact2=sumexact2+abs(adfy1(ipoin))^2;  
 end
 
- sumerr2=sqrt(sumerr2/npoin);
+ sumerr2=sqrt(sumerr2/sumexact2);
  
 % errvec=abs(cadfy1-adfy1);
 % [err,id]=max(errvec); 
@@ -85,6 +89,8 @@ end
 % max(errvec)
 %     
     
+figure(2)
+plot(ppp(:,1),ppp(:,2),'.','MarkerSize',20)
 
 
 
