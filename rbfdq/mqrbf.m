@@ -11,7 +11,7 @@ function [rder]=mqrbf(pxy,xy,c)
 % c---- A: coefficient matrix constructed from the basis functions
 % c---- b: derivative vectors of the basis functions 
 % c---- rder(:,1) coefficients for u_x, rder(:,2) for u_y, 
-% c---- rder(:,3) d^2u/dy^2  rder(:,4) d^2u/dx^2   rder(:,5) d^2u/dxdy
+% c---- rder(:,3) d^2u/dx^2  rder(:,4) d^2u/dy^2   rder(:,5) d^2u/dxdy
 
 np=size(pxy,1);
 nd=np+1;

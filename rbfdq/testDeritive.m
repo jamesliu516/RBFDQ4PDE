@@ -89,10 +89,9 @@ end
 % max(errvec)
 %     
     
-figure(2)
+figure(1)
 plot(ppp(:,1),ppp(:,2),'.','MarkerSize',20)
-
-
+axis square
 
 
 
