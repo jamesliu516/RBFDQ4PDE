@@ -48,26 +48,26 @@ b=zeros(nd1,2);
 
 a(nd,1:nd)=1.0;
 
-for ii=1:nd-1
-    for jj=1:nd
-        dx=(pn(jj,1)-pn(ii,1))/scaling;       
-        dy=(pn(jj,2)-pn(ii,2))/scaling;
+for jii=1:nd-1
+    for kk=1:nd
+        dx=(pn(kk,1)-pn(jii,1))/scaling;       
+        dy=(pn(kk,2)-pn(jii,2))/scaling;
         
-        dxk=(pn(jj,1)-pn(nd,1))/scaling;
-        dyk=(pn(jj,2)-pn(nd,2))/scaling;
-        a(ii,jj)=sqrt(dx*dx+dy*dy+c)-sqrt(dxk*dxk+dyk*dyk+c);
+        dxk=(pn(kk,1)-pn(nd,1))/scaling;
+        dyk=(pn(kk,2)-pn(nd,2))/scaling;
+        a(jii,kk)=sqrt(dx*dx+dy*dy+c)-sqrt(dxk*dxk+dyk*dyk+c);
     end
     
-    for jj=nd+1:nd1
-        dxnb=(pxynb(jj-nd,1)-pn(ii,1))/scaling;
-        dynb=(pxynb(jj-nd,2)-pn(ii,2))/scaling;   
-        dxnbk=(pxynb(jj-nd,1)-pn(nd,1))/scaling;
-        dynbk=(pxynb(jj-nd,2)-pn(nd,2))/scaling; 
+    for kk=nd+1:nd1
+        dxnb=(pxynb(kk-nd,1)-pn(jii,1))/scaling;
+        dynb=(pxynb(kk-nd,2)-pn(jii,2))/scaling;   
+        dxnbk=(pxynb(kk-nd,1)-pn(nd,1))/scaling;
+        dynbk=(pxynb(kk-nd,2)-pn(nd,2))/scaling; 
         
         ffunc1=sqrt(dxnb*dxnb+dynb*dynb+c);
         ffunc2=sqrt(dxnbk*dxnbk+dynbk*dynbk+c);       
-        a(ii,jj)=pxynbnor(jj-nd,1)*(dxnb/ffunc1-dxnbk/ffunc2) ...
-            +pxynbnor(jj-nd,2)*(dynb/ffunc1-dynbk/ffunc2);
+        a(jii,kk)=pxynbnor(kk-nd,1)*(dxnb/ffunc1-dxnbk/ffunc2) ...
+            +pxynbnor(kk-nd,2)*(dynb/ffunc1-dynbk/ffunc2);
     end
         
 end

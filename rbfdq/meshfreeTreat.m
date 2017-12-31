@@ -4,8 +4,8 @@ global ppp ttt  pointboun typPoints
 global n_pointPoint2 pointsPoint2
 %meshden=0.025;
 
-%generateCircle; % call mesh generation
-generateRectangle;
+generateCircle; % call mesh generation
+%generateRectangle;
 %ttt: the element array，单元数组显示单元有哪些点组成
 %ppp: 点坐标
 nelem=size(ttt,1);
