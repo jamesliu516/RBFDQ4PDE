@@ -118,6 +118,9 @@ for k=1:size(pointboun,1)
     ipoin=pointboun(k);
     
     pnxy1=pointsPoint2(ipoin,1:n_pointPoint2(ipoin));
+%     if length(pnxy1)~=n_pointPoint2(ipoin)
+%         disp('error pnxy1');
+%     end
     pxy1=ppp(pnxy1',:);
     xy1=ppp(ipoin,:);
     pxynb=[];

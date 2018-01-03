@@ -82,15 +82,18 @@ rder=b;
 rder=a\rder;
 
 
-for ik1=1:5
-    for ik2=1:nd
-        if (ik1==1 || ik1==2)
-            rder(ik2,ik1)=rder(ik2,ik1)/scaling;            
-        elseif (ik1==3 || ik1==4 || ik1==5)
-            rder(ik2,ik1)=rder(ik2,ik1)/scaling/scaling;
-        end
-    end
-end
+% for ik1=1:5
+%     for ik2=1:nd
+%         if (ik1==1 || ik1==2)
+%             rder(ik2,ik1)=rder(ik2,ik1)/scaling;            
+%         elseif (ik1==3 || ik1==4 || ik1==5)
+%             rder(ik2,ik1)=rder(ik2,ik1)/scaling/scaling;
+%         end
+%     end
+% end
+
+rder(1:nd,1:2)=rder(1:nd,1:2)/scaling;
+rder(1:nd,3:5)=rder(1:nd,3:5)/scaling/scaling;
 
 
 

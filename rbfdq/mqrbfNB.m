@@ -42,6 +42,7 @@ for ji=1:np
 end
 
 scaling = scaling*2.0;
+%scaling=1.0;
 
 a=zeros(nd1,nd1);
 b=zeros(nd1,2);
@@ -141,23 +142,25 @@ rder=b;
 
 rder=a\rder;
 
+% 
+% for ik1=1:2
+%     for ik2=1:nd
+%        % if (ik1==1 || ik1==2)
+%             rder(ik2,ik1)=rder(ik2,ik1)/scaling;            
+% %         elseif (ik1==3 || ik1==4 || ik1==5)
+% %             rder(ik2,ik1)=rder(ik2,ik1)/scaling/scaling;
+% %         end
+%     %    end
+%     end
+%     
+% %     for ik2=nd+1:nd1
+% %        % rder(ik2,ik1)=rder(ik2,ik1)/scaling/scaling;
+% %         rder(ik2,ik1)=rder(ik2,ik1);
+% %     end
+% end
 
-for ik1=1:2
-    for ik2=1:nd
-        if (ik1==1 || ik1==2)
-            rder(ik2,ik1)=rder(ik2,ik1)/scaling;            
-%         elseif (ik1==3 || ik1==4 || ik1==5)
-%             rder(ik2,ik1)=rder(ik2,ik1)/scaling/scaling;
-%         end
-        end
-    end
-    for ik2=nd+1:nd1
-        rder(ik2,ik1)=rder(ik2,ik1)/scaling/scaling;
-    end
-end
 
-
-
+rder(1:nd,1:2)=rder(1:nd,1:2)/scaling; 
 
 
 
