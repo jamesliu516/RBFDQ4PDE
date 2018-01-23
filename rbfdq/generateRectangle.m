@@ -4,7 +4,7 @@
 
 %   Copyright (C) 2004-2012 Per-Olof Persson. See COPYRIGHT.TXT for details.
 cd ../
-global ppp ttt meshden pointboun
+global ppp ttt meshden pointboun racLow racHigh
 %meshden=0.05; %defaut
 
 pointboun=[];
@@ -16,10 +16,21 @@ fstats=@(p,t) fprintf('%d nodes, %d elements, min quality %.2f\n', ...
 
 
 fprintf('Square, with size function point and line sources\n');
-fd=@(p) drectangle(p,-1,1,-1,1);
+
+%[-1,1]X[-1,1]
+fd=@(p) drectangle(p,racLow(1),racHigh(1),racLow(2),racHigh(2));
+
+%[0,1]X[0,1]
+%fd=@(p) drectangle(p,0,1,0,1);
 % fh=@(p) min(min(0.01+0.3*abs(dcircle(p,0,0,0)), ...
 %                 0.025+0.3*abs(dpoly(p,[0.3,0.7; 0.7,0.5]))),0.15);
-[ppp,ttt]=distmesh2d(fd,@huniform,meshden,[-1,-1;1,1],[-1,-1;1,-1;-1,1;1,1]);
+%[-1,1]X[-1,1]
+[ppp,ttt]=distmesh2d(fd,@huniform,meshden, ...
+    [racLow(1),racLow(2);racHigh(1),racHigh(2)], ...
+    [racLow(1),racLow(2);racHigh(1),racLow(2);racLow(1),racHigh(2); ...
+    racHigh(1),racHigh(2)]);
+%[0,1]X[0,1]
+%[ppp,ttt]=distmesh2d(fd,@huniform,meshden,[0,0;1,1],[0,0;1,0;0,1;1,1]);
 fstats(ppp,ttt);
 %fprintf('(press any key)\n\n'); pause                  
                   

@@ -1,11 +1,18 @@
 
-global ppp ttt  pointboun typPoints
+global ppp ttt  pointboun typPoints domain 
 %pointboun: boundary node number
 global n_pointPoint2 pointsPoint2
 %meshden=0.025;
+%domain=1;
+switch domain
+    case 1      
+        generateRectangle;
+    case 2
+        generateCircle; % call mesh generation
+    otherwise
+        warning('Unexpected demain type. No mesh created.');
+end
 
-generateCircle; % call mesh generation
-%generateRectangle;
 %ttt: the element array，单元数组显示单元有哪些点组成
 %ppp: 点坐标
 nelem=size(ttt,1);
@@ -26,7 +33,7 @@ n_pointPoint=zeros(npoin,1); %% the number of point(support points) with common 
 typPoints=zeros(npoin,1); %% the type of the node: 0 inner point, 1 Dirchlet Boundary point
                           %2 Neumann Boundary condition point
                           
-typPoints(pointboun)=1;
+typPoints(pointboun)=1; %1 boudary point
 
 %pointElem=[]; % point with elements
 

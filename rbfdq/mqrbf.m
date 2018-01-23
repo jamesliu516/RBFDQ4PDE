@@ -37,7 +37,7 @@ for i=1:np
 end
 
 scaling = scaling*2.0;
-
+%scaling=1;
 a=zeros(nd,nd);
 b=zeros(nd,5);
 
