@@ -1,6 +1,6 @@
 %variable-order time fractional advection-diffusion equation solver
 %v_otfa_de
-clear
+clear 
 clc
 close all
 hold off
@@ -38,6 +38,7 @@ switch examp
         vecSp1=@(x,y,t) (1 );
         vecSp2=@(x,y,t) (1 );        
         vo_alpha=@(x,y,t) (0.8-0.1*cos(x*t).* sin(x)-0.1*cos(y*t).*sin(y));
+      %  vo_alpha=@(x,y,t) (0.5);
         sourceF=@(x,y,t) (2*t.^(2-vo_alpha(x,y,t))./gamma(3-vo_alpha(x,y,t)) ...
             +2*x+2*y-4);
         uexact=@(x,y,t) (x.^2+y.^2+t.^2);
@@ -84,12 +85,13 @@ end
 
 
 nStep=0;
-% initial data from time =0
-for ipoin=1:npoin
-    unum(ipoin,nStep+1)=uexact(ppp(ipoin,1), ppp(ipoin,2), 0);
-end
+%initial data from time =0
+% for ipoin=1:npoin
+%     unum(ipoin,1)=uexact(ppp(ipoin,1), ppp(ipoin,2), 0);
+% end
+unum(:,1)=uexact(ppp(:,1), ppp(:,2), 0);
 
-while Tnow<=Tend 
+while Tnow<Tend 
     acoe=zeros(npoin,npoin);
     Tnow=Tnow+dlt;
     nStep=nStep+1;
@@ -128,7 +130,7 @@ while Tnow<=Tend
             end
             
             Fnum(ipoin)=(1-bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,1)) ...
-                *unum(ipoin,nStep-1+1)+ tmpsum+bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,nStep-1) ...
+                *unum(ipoin,nStep-1+1)+ tmpsum+bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,nStep) ...
                 *unum(ipoin,0+1)+muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
                 *sourceF(ppp(ipoin,1),ppp(ipoin,2),Tnow);
         end
@@ -155,14 +157,21 @@ hold off
 plot(ppp(:,1),ppp(:,2),'b.','MarkerSize',20);
 hold on
 plot(ppp(pointboun,1),ppp(pointboun,2),'r.','MarkerSize',20);
+xlabel('x'); ylabel('y');
 
 if domain==1
     axis([racLow(1),racHigh(1),racLow(2),racHigh(2)])
 end
+axis equal
 
 figure(3)
-plot3(ppp(:,1),ppp(:,2), unum(:,NtimeStep+1), 'b.','MarkerSize',10);
+plot3(ppp(:,1),ppp(:,2), unum(:,NtimeStep+1), 'b.','MarkerSize',20);
+xlabel('x'); ylabel('y');
+zlabel('u^h({\bf x}, T)');
+grid on
 
 figure(4)
-plot3(ppp(:,1),ppp(:,2), uerr, 'b.','MarkerSize',10);
-
+plot3(ppp(:,1),ppp(:,2), abs(uerr), 'b.','MarkerSize',20);
+zlabel('Error');
+xlabel('x'); ylabel('y');
+grid on
