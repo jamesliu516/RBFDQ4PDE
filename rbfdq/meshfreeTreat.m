@@ -2,13 +2,18 @@
 global ppp ttt  pointboun typPoints domain 
 %pointboun: boundary node number
 global n_pointPoint2 pointsPoint2
+global n_pointPoint pointsPoint su2mesh
 %meshden=0.025;
 %domain=1;
 switch domain
     case 1      
         generateRectangle;
     case 2
-        generateCircle; % call mesh generation
+        if su2mesh ==1
+            loadsu2mesh;
+        else
+            generateCircle; % call mesh generation
+        end
     otherwise
         warning('Unexpected demain type. No mesh created.');
 end
@@ -142,8 +147,8 @@ for ipn=1:npoin   %µãipn
     end
 end
 
-clear n_pointPoint;
-clear pointsPoint;
+%clear n_pointPoint;
+%clear pointsPoint;
 clear elemPoint;
 
                             

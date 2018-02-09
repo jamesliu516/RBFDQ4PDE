@@ -2,7 +2,8 @@ function [rder]=mqrbf(pxy,xy,c)
 % This program is used to calculate the derivative coefficients in the Local MQ-DQ method.
 % c---- INPUT: pxy, xy, c , xy is a  row vector like (0.3,0.5)
 % c---- OUTPUT: r
-% c---- pxy: store the positions of the supporting points np*2 matrix
+% c---- pxy: store the positions of the supporting points np*2 matrix not
+% include xy
 % c---- xy: store the position of the reference node
 % c---- c: shape parameter for the MQ radial basis function 
 % c---- rder: vector of computed derivative coefficients
@@ -12,6 +13,7 @@ function [rder]=mqrbf(pxy,xy,c)
 % c---- b: derivative vectors of the basis functions 
 % c---- rder(:,1) coefficients for u_x, rder(:,2) for u_y, 
 % c---- rder(:,3) d^2u/dx^2  rder(:,4) d^2u/dy^2   rder(:,5) d^2u/dxdy
+% c---- rder(:,1) the lastest is the coefficent of the point xy itself
 
 np=size(pxy,1);
 nd=np+1;

@@ -2,12 +2,14 @@ clear
 clc
 clf 
 hold off
+global su2mesh
+su2mesh=1;
 % test mqrbf and meshfree grid treatment
-global ppp meshden  pointboun typPoints
+global ppp meshden  pointboun typPoints domain
 %pointboun: boundary node number
 global n_pointPoint2 pointsPoint2
-meshden=0.05;
-
+meshden=0.056;
+domain=2;
 meshfreeTreat;
 
 % f=@(x,y) (x.^2-x.*y.^3+4);
@@ -46,7 +48,7 @@ end
 
 
 rder=cell(npoin,1);
-c=25;
+c=5;
 for ipoin=1:npoin    
     pxy11=pxy{ipoin};
     xy=ppp(ipoin,:);
@@ -152,7 +154,7 @@ for k=1:size(pointboun,1)
     rd3=mqrbf(pxy1,xy1,c);
     rt3=0.0;
     
-    rd2= mqrbfNB(pxy1,pxynb, pxynbnor, xy1, c);
+    rd2= mqrbfNB(pxy1,xy1,pxynb, pxynbnor,  c);
     rt=0.0;
     
     for jk=1:n_pointPoint2(ipoin)

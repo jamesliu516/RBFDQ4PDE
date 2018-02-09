@@ -1,11 +1,12 @@
-function [rder]=mqrbfNB(pxy,pxynb, pxynbnor, xy, c)
+function [rder]=mqrbfNB(pxy, xy, pxynb, pxynbnor,c)
 % This program is used to calculate the derivative coefficients in the Local MQ-DQ method.
 % c---- INPUT: pxy, xy, c , xy is a  row vector like (0.3,0.5)
 % c----- pxy do not include point xy
 % c---- OUTPUT: r
 % c---- pxy: store the positions of the supporting points np*2 matrix
 % c---- xy: store the position of the reference node
-% c---- pxynb Neumann boundary points at the boundary
+% c---- pxynb Neumann boundary points at the boundary include boundary
+% point xy
 % c---- pxynbnor Normal direction at Neumann boundary points
 % c---- c: shape parameter for the MQ radial basis function 
 % c---- rder: vector of computed derivative coefficients 1->nd, nd+1->nd1
