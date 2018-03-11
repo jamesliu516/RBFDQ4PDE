@@ -46,7 +46,7 @@ scaling = scaling*2.0;
 %scaling=1.0;
 
 a=zeros(nd1,nd1);
-b=zeros(nd1,2);
+b=zeros(nd1,5);
 
 a(nd,1:nd)=1.0;
 
@@ -109,9 +109,9 @@ for ii=1:nd-1
     b(ii,1)=dx/ffunc;
     
     b(ii,2)=dy/ffunc;
-%     b(ii,3)=(dy*dy+c)/(ffunc^3.0)-1.d0/sqrt(c);
-%     b(ii,5)=-dx*dy/(ffunc^3.0);
-%     b(ii,4)=(dx*dx+c)/(ffunc^3.)-1.d0/sqrt(c);
+    b(ii,3)=(dy*dy+c)/(ffunc^3.0)-1.d0/sqrt(c);
+    b(ii,5)=-dx*dy/(ffunc^3.0);
+    b(ii,4)=(dx*dx+c)/(ffunc^3.)-1.d0/sqrt(c);
 end
 
 % b(nd,1)=0.0;
@@ -119,18 +119,35 @@ end
 % b(nd,3)=0.0;
 % b(nd,4)=0.0;
 % b(nd,5)=0.0;
-b(nd,1:2)=0.0;
+b(nd,1:5)=0.0;
+% f_x2 =(3*(2*x - 2*xm)^2*(nx*(x - xm) + ny*(y - ym)))/(4*(c + (x - xm)^2  ...
+%   + (y - ym)^2)^(5/2)) - (nx*(2*x - 2*xm))/(c + (x - xm)^2 + (y - ym)^2)^(3/2) ...
+%   - (nx*(x - xm) + ny*(y - ym))/(c + (x - xm)^2 + (y - ym)^2)^(3/2);
+% f_x2 =3*(x - xm)^2*(nx*(x - xm) + ny*(y - ym))/(c + (x - xm)^2  ...
+%   + (y - ym)^2)^(5/2) - (3*nx*(x - xm)+ny*(y - ym))  ...
+%   /(c + (x - xm)^2 + (y - ym)^2)^(3/2);
+%f_y2= 3*(y - ym)^2*(nx*(x - xm) + ny*(y - ym))/(c + (x - xm)^2 + (y - ym)^2)^(5/2) - (nx*(x - xm) + 3*ny*(y - ym))/(c + (x - xm)^2 + (y - ym)^2)^(3/2)
+%f_xy11 =(3*(x - xm)*(y - ym)*(nx*(x - xm) + ny*(y - ym)))/(c + (x - xm)^2 + (y - ym)^2)^(5/2) - (nx*(y - ym))/(c + (x - xm)^2 + (y - ym)^2)^(3/2) - (ny*(x - xm))/(c + (x - xm)^2 + (y - ym)^2)^(3/2)
+
+
 for mm=nd+1:nd1
     dxnb=-(pxynb(mm-nd,1)-pn(nd,1))/scaling;
     dynb=-(pxynb(mm-nd,2)-pn(nd,2))/scaling;
     ffunc=sqrt(dxnb^2+dynb^2+c);
     ffunc3=ffunc^3;
+    ffunc5=ffunc3*ffunc^2;
     nmx=pxynbnor(mm-nd,1);
     nmy=pxynbnor(mm-nd,2);
     tmpx=nmx/ffunc-(dxnb^2*nmx+dxnb*dynb*nmy)/ffunc3;
     tmpy=nmy/ffunc-(nmx*dxnb*dynb+dynb^2*nmy)/ffunc3;
     b(mm,1)=tmpx;
-    b(mm,2)=tmpy;    
+    b(mm,2)=tmpy; 
+    b(mm,3)=3*dxnb^2*(nmx*dxnb + nmy*dynb)/ffunc5 ...
+        - (3*nmx*dxnb+nmy*dynb)/ffunc3;
+    b(mm,4)=3*dynb^2*(nmx*dxnb + nmy*dynb)/ffunc5 ...
+        - (3*nmy*dynb+nmx*dxnb)/ffunc3;
+    b(mm,5)=(3*dxnb*dynb*(nmx*dxnb+nmy*dynb))/ffunc5 ...
+        - nmx*dynb/ffunc3-nmy*dxnb/ffunc3;
 end
 
 % for ii=1:nd1
@@ -139,7 +156,7 @@ end
 %     end
 % end
 
-rder=b;
+rder=b(:,1:5);
 
 rder=a\rder;
 
@@ -162,6 +179,8 @@ rder=a\rder;
 
 
 rder(1:nd,1:2)=rder(1:nd,1:2)/scaling; 
+rder(1:nd,3:5)=rder(1:nd,3:5)/scaling/scaling; 
+rder(nd+1:nd1,3:5)=rder(nd+1:nd1,3:5)/scaling; 
 
 
 

@@ -21,16 +21,16 @@ if domain==1
     racLow=[0,0]; % left down
     racHigh=[1,1];  % right up
 end
-boundType=1; %1 Dirichlet, 2 Neumann
+boundType=2; %1 Dirichlet, 2 Neumann
 
 cellBool=0; % 1: cell 0: map
-HRBFDQ=0; %0: rbf dq by Shu, 1: hermite RBFDQ
+HRBFDQ=1; %0: rbf dq by Shu, 1: hermite RBFDQ
 boundInEq=0; % 1 include boundary point Eq, 0 no
 
-c=5; 
+c=15; 
 
 global su2mesh
-su2mesh=1;
+su2mesh=0;
 meshfreeTreat;
 
 thet=1;  % theta method
@@ -145,9 +145,7 @@ for ipoin=1:npoin
             rdernbMap{ipoin}=[rdernbMap{ipoin};rd2];
             pxynbMap{ipoin}=[pxynbMap{ipoin};pxynb];
             pxynbnorMap{ipoin}=[pxynbnorMap{ipoin};pxynbnor];
-        end
-        
-        
+        end                
     end
     
 end

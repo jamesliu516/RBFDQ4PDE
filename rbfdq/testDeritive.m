@@ -3,7 +3,7 @@ clc
 clf 
 hold off
 global su2mesh
-su2mesh=1;
+su2mesh=2;
 % test mqrbf and meshfree grid treatment
 global ppp meshden  pointboun typPoints domain
 %pointboun: boundary node number
@@ -23,8 +23,9 @@ meshfreeTreat;
 % dfx1=@(x,y) (3*y.*x.^2);
 
 %%111
-f=@(x,y) (x.^3+y.^3+x+y+6);
-dfx1=@(x,y) (3*x.^2+1);
+f=@(x,y) ((x-10).^3+y.^3+x+y+6);
+dfx1=@(x,y) (3*(x-10).^2+1);
+dfx2=@(x,y) (6*(x-10));
 dfy1=@(x,y) (3*y.^2+1);
 %%111
 % f=@(x,y) (tanh(9*(y-x))+1)/(tanh(9)+1);
@@ -127,6 +128,9 @@ figure(1)
 sumerr3=0.0;
 sumerr4=0.0;
 sumdudn=0.0;
+sumerF2x=0.0;
+sumerF2xshu=0.0;
+totsumF2x=0.0;
 pnberr=[];
 for k=1:size(pointboun,1)
     ipoin=pointboun(k);
@@ -154,18 +158,24 @@ for k=1:size(pointboun,1)
     rd3=mqrbf(pxy1,xy1,c);
     rt3=0.0;
     
-    rd2= mqrbfNB(pxy1,xy1,pxynb, pxynbnor,  c);
+    rd2= mqrbfNB(pxy1,xy1,pxynb, pxynbnor, c);
     rt=0.0;
+    rtf2x=0.0;
+    rtf2xShu=0.0;
     
     for jk=1:n_pointPoint2(ipoin)
         rt=rt+(rd2(jk,1)*nor(1)+rd2(jk,2)*nor(2))*af(pointsPoint2(ipoin,jk));
+        rtf2x=rtf2x+rd2(jk,3)*af(pointsPoint2(ipoin,jk));
         rt3=rt3+(rd3(jk,1)*nor(1)+rd3(jk,2)*nor(2))*af(pointsPoint2(ipoin,jk));
+        rtf2xShu=rtf2xShu+rd3(jk,3)*af(pointsPoint2(ipoin,jk));
     end
     
     nd=n_pointPoint2(ipoin)+1;
     
     rt=rt+(rd2(nd,1)*nor(1)+rd2(nd,2)*nor(2))*af(ipoin);
+    rtf2x=rtf2x+rd2(nd,3)*af(ipoin);
     rt3=rt3+(rd3(nd,1)*nor(1)+rd3(nd,2)*nor(2))*af(ipoin);
+    rtf2xShu=rtf2xShu+rd3(nd,3)*af(ipoin);
     
     npnb=size(pxynb,1);
 
@@ -173,11 +183,14 @@ for k=1:size(pointboun,1)
         tm1=dfx1(pxynb(jk,1),pxynb(jk,2))*pxynbnor(jk,1);
         tm2=dfy1(pxynb(jk,1),pxynb(jk,2))*pxynbnor(jk,2); 
         rt=rt+(rd2(jk+nd,1)*nor(1)+rd2(jk+nd,2)*nor(2))*(tm1+tm2);
+        rtf2x=rtf2x+rd2(jk+nd,3)*(tm1+tm2);
     end
     tm1= dfx1(xy1(1),xy1(2))*nor(1)+dfy1(xy1(1),xy1(2))*nor(2);
   %  rt-tm1
     
-    
+    sumerF2x=sumerF2x+(rtf2x-dfx2(xy1(1),xy1(2)))^2;
+    sumerF2xshu=sumerF2xshu+(rtf2xShu-dfx2(xy1(1),xy1(2)))^2;
+    totsumF2x=totsumF2x+dfx2(xy1(1),xy1(2))^2;
     sumerr3=sumerr3+(rt-tm1)^2;  %rbfdqnb
     sumerr4=sumerr4+(rt3-tm1)^2;    % rbfdq of Shu
     sumdudn=sumdudn+tm1^2;
@@ -187,6 +200,8 @@ maxerr=max(pnberr);
 sumerr3=sqrt(sumerr3/sumdudn);
 
 sumerr4=sqrt(sumerr4/sumdudn);  %原始的直接用Shu的DQ方法误差
+sumerF2x=sqrt(sumerF2x/totsumF2x);
+sumerF2xshu=sqrt(sumerF2xshu/totsumF2x);
 
 
         
