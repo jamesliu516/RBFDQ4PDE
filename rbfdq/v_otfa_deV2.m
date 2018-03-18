@@ -77,17 +77,21 @@ for ipoin=1:npoin
 end
 numbp=size(pointboun,1);
 nmlPboun=zeros(numbp,2); %normal direction over the boundary points
+g2locNmlPbnd=containers.Map(pointboun,zeros(numbp,1));
+
 for ipb=1:numbp
     nmlPboun(ipb,:)=ppp(pointboun(ipb),:); % only right for unit circle and origin is the center 
+    g2locNmlPbnd(pointboun(ipb))=ipb;
 end
 
-tmpCell=cell(npoin,3);   %tmpCell(0(1), [... num on boundary ],  [... mqrbfNb coefficents]
+
+tmpCell=cell(npoin,3);   %tmpCell(0(1), [... number on boundary ],  [... mqrbfNb coefficents]
 for ipoin=1:npoin
     tmpCell{ipoin,1}=0;
     tmpCell{ipoin,2}=[];
     tmpCell{ipoin,3}=[];
     if typPoints(ipoin)==2
-        tmpCell{ipoin,1}=1;
+        tmpCell{ipoin,1}=1; 
         tmpCell{ipoin,2}=[tmpCell{ipoin,2}, ipoin];
     end
     
@@ -101,12 +105,25 @@ for ipoin=1:npoin
 end
 
 % rd2= mqrbfNB(pxy1,xy1,pxynb, pxynbnor, c);
-% for ipoin=1:npoin
-%    if tmpCell{ipoin,1}==1
-%        
-%    end
-%     
-% end
+for ipoin=1:npoin
+    pxy11=pxy{ipoin};
+    xy=ppp(ipoin,:);
+    pxynb=[];
+    pxynbnor=[];
+    if tmpCell{ipoin,1}==1 % 1 denotes the present point or some neighbor point on the Neumann boundary
+        nbpArray=tmpCell{ipoin,2};
+        for itm=1:length(nbpArray)
+            pxynb=[pxynb; ppp(nbpArray(itm),:)];
+            pxynbnor=[pxynbnor; nmlPboun(g2locNmlPbnd(nbpArray(itm)),:)];
+        end
+        
+        rdrd= mqrbfNB(pxy11,xy,pxynb, pxynbnor, c);
+    else if tmpCell{ipoin,1}==0
+        rdrd= mqrbf(pxy11,xy, c);    
+        end
+    end
+    tmpCell{ipoin,3}=[tmpCell{ipoin,3}, rdrd];   
+end
 
 if cellBool==0
     rdernb=cell(numbp,1);
