@@ -78,6 +78,8 @@ end
 numbp=size(pointboun,1);
 nmlPboun=zeros(numbp,2); %normal direction over the boundary points
 g2locNmlPbnd=containers.Map(pointboun,zeros(numbp,1));
+neumBndV=zeros(numbp,1);
+
 
 for ipb=1:numbp
     nmlPboun(ipb,:)=ppp(pointboun(ipb),:); % only right for unit circle and origin is the center 
@@ -228,10 +230,17 @@ while Tnow<Tend
     %         break
     %     end
     
-    nBoundEq=0;
+   % nBoundEq=0;
+    for ibn=1:numbp
+        xy1=ppp(pointboun(ibn),:);
+        nor=nmlPboun(ibn,:);
+        neumBndV(ibn)=dfx1(xy1(1),xy1(2),Tnow)*nor(1) ...
+            +dfy1(xy1(1),xy1(2),Tnow)*nor(2);
+    end
     
     for ipoin=1:npoin
-        if typPoints(ipoin)==0 || (typPoints(ipoin)==2 && boundInEq==1)
+        %if typPoints(ipoin)==0 || (typPoints(ipoin)==2 && boundInEq==1)
+        if tmpCell{ipoin,1}==0
             att1=rder{ipoin};
             acoe(ipoin,ipoin)=1;
             for jk=1:n_pointPoint2(ipoin)
@@ -255,24 +264,6 @@ while Tnow<Tend
             acoe(ipoin,nbpoin)=acoe(ipoin,nbpoin) ...
                 +rt*thet*muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow,dlt);
             tmpsum=0;
-            %             %nStep == k+1
-            %             for itp=1:nStep-2
-            %                 tmpsum=tmpsum+(bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,itp) ...
-            %                     -bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,itp+1))*unum(ipoin,nStep-1-itp+1);
-            %             end
-            %             % nStep-1 ?????
-            %             Fnum(ipoin)=(1-bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,1)) ...
-            %                 *unum(ipoin,nStep-1+1)+ tmpsum+bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,nStep) ...
-            %                 *unum(ipoin,0+1)+muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
-            %                 *sourceF(ppp(ipoin,1),ppp(ipoin,2),Tnow);
-%             for itp=1:nStep-1
-%                 tmpsum=tmpsum+bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,itp) ...
-%                     *(unum(ipoin,nStep-1-itp+2)-unum(ipoin,nStep-1-itp+1));
-%             end
-% 
-%             Fnum(ipoin)=unum(ipoin,nStep-1+1)-tmpsum+ ...
-%                 muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
-%                 *sourceF(ppp(ipoin,1),ppp(ipoin,2),Tnow);
 
             for itp=1:nStep-1
                 tmpsum=tmpsum+(bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,nStep-itp-1) ...
@@ -284,17 +275,48 @@ while Tnow<Tend
                  *sourceF(ppp(ipoin,1),ppp(ipoin,2),Tnow);
 
         end
-        
-        if  typPoints(ipoin)==2 && boundInEq==1
-            zeroORnpoin=npoin;          
-        end
-        
-        
+               
         if  typPoints(ipoin)==1
             acoe(ipoin,ipoin)=1;
             Fnum(ipoin)=uexact(ppp(ipoin,1),ppp(ipoin,2),Tnow);
         end
         %%%neumann boundary can only do for unit circle  
+        if tmpCell{ipoin,1}==1 && typPoints(ipoin)~=2
+            att1=tmpCell{ipoin,3};
+            acoe(ipoin,ipoin)=1;
+            for jk=1:n_pointPoint2(ipoin)
+                nbpoin=pointsPoint2(ipoin,jk);
+                rt=-(att1(jk,3)+att1(jk,4)) ...
+                    *kapaFun(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
+                    +(att1(jk,1)*vecSp1(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
+                    +att1(jk,2)*vecSp2(ppp(ipoin,1),ppp(ipoin,2),Tnow));
+                acoe(ipoin,nbpoin)=acoe(ipoin,nbpoin) ...
+                    +rt*thet*muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow,dlt);
+            end
+            
+            % att1(n_pointPoint2(ipoin)+1,1)
+            jk=n_pointPoint2(ipoin)+1;
+            
+            nbpoin=ipoin;
+            rt=-(att1(jk,3)+att1(jk,4)) ...
+                *kapaFun(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
+                +(att1(jk,1)*vecSp1(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
+                +att1(jk,2)*vecSp2(ppp(ipoin,1),ppp(ipoin,2),Tnow));
+            acoe(ipoin,nbpoin)=acoe(ipoin,nbpoin) ...
+                +rt*thet*muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow,dlt);
+            tmpsum=0; 
+            
+            for itp=1:nStep-1
+                tmpsum=tmpsum+(bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,nStep-itp-1) ...
+                    -bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,nStep-itp)) ...
+                    *unum(ipoin,itp+1);
+            end   
+            Fnum(ipoin)=bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,nStep-1) ...
+                * unum(ipoin,1)+tmpsum+muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow,dlt) ...
+                 *sourceF(ppp(ipoin,1),ppp(ipoin,2),Tnow);  
+             
+        end
+        
         if  typPoints(ipoin)==2
             if cellBool==0
                 rd2=rdernbMap(ipoin);
@@ -309,26 +331,17 @@ while Tnow<Tend
             end
             
             nor=ppp(ipoin,:);
-            nBoundEq=nBoundEq+1;
+     %      nBoundEq=nBoundEq+1;
             %zeroORnpoin
             if HRBFDQ==1
                 % rt=0.0;
-                for jk=1:n_pointPoint2(ipoin)
-                    %rt=rt+(rd2(jk,1)*nor(1)+rd2(jk,2)*nor(2))*af(pointsPoint2(ipoin,jk));
-                    if boundInEq==1                   
-                        acoe(zeroORnpoin+nBoundEq,pointsPoint2(ipoin,jk))=rd2(jk,1)*nor(1)+rd2(jk,2)*nor(2);
-                    else     
-                        acoe(ipoin,pointsPoint2(ipoin,jk))=rd2(jk,1)*nor(1)+rd2(jk,2)*nor(2);
-                    end
+                for jk=1:n_pointPoint2(ipoin)    
+                    acoe(ipoin,pointsPoint2(ipoin,jk))=rd2(jk,1)*nor(1)+rd2(jk,2)*nor(2);
                 end
                 % xy1=ppp(ipoin,:);
                 nd=n_pointPoint2(ipoin)+1;
-                if boundInEq==1
-                    acoe(zeroORnpoin+nBoundEq,ipoin)=rd2(nd,1)*nor(1)+rd2(nd,2)*nor(2);
-                else
-                    acoe(ipoin,ipoin)=rd2(nd,1)*nor(1)+rd2(nd,2)*nor(2);
-                end
-                % npnb=size(rd2,1)-nd;
+
+                acoe(ipoin,ipoin)=rd2(nd,1)*nor(1)+rd2(nd,2)*nor(2);
                 
                 npnb=size(pxynb,1);
             
@@ -340,11 +353,9 @@ while Tnow<Tend
                 end
                 xy1=ppp(ipoin,:);
                 tm1= dfx1(xy1(1),xy1(2),Tnow)*nor(1)+dfy1(xy1(1),xy1(2),Tnow)*nor(2);
-                if boundInEq==1
-                    Fnum(zeroORnpoin+nBoundEq)=tm1-rt;
-                else
-                    Fnum(ipoin)=tm1-rt;
-                end
+
+                Fnum(ipoin)=tm1-rt;
+
                 
             end
             
