@@ -24,10 +24,10 @@ end
 boundType=2; %1 Dirichlet, 2 Neumann
 
 cellBool=0; % 1: cell 0: map
-HRBFDQ=1; %0: rbf dq by Shu, 1: hermite RBFDQ
+HRBFDQ=0; %0: rbf dq by Shu, 1: hermite RBFDQ
 boundInEq=0; % 1 include boundary point Eq, 0 no
 
-c=15; 
+c=25; 
 
 global su2mesh
 su2mesh=0;

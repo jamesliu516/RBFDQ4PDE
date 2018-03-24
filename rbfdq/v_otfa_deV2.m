@@ -25,9 +25,9 @@ boundType=2; %1 Dirichlet, 2 Neumann
 
 cellBool=0; % 1: cell 0: map
 HRBFDQ=1; %0: rbf dq by Shu, 1: hermite RBFDQ
-boundInEq=0; % 1 include boundary point Eq, 0 no
+%boundInEq=0; % 1 include boundary point Eq, 0 no
 
-c=15; 
+c=25; 
 
 global su2mesh
 su2mesh=0;
@@ -43,8 +43,7 @@ Tend=1;
 dlt=Tend/NtimeStep;
 Tnow=0;
 
-unum=zeros(npoin,NtimeStep+1);
-Fnum=zeros(npoin,1);
+
 
 switch examp
     case 1
@@ -79,17 +78,18 @@ numbp=size(pointboun,1);
 nmlPboun=zeros(numbp,2); %normal direction over the boundary points
 g2locNmlPbnd=containers.Map(pointboun,zeros(numbp,1));
 neumBndV=zeros(numbp,1);
-
+unum=zeros(npoin+numbp,NtimeStep+1);
+Fnum=zeros(npoin+numbp,1);
 
 for ipb=1:numbp
-    nmlPboun(ipb,:)=ppp(pointboun(ipb),:); % only right for unit circle and origin is the center 
+    nmlPboun(ipb,:)=ppp(pointboun(ipb),:)+1e-6; % only right for unit circle and origin is the center 
     g2locNmlPbnd(pointboun(ipb))=ipb;
 end
 
 
 tmpCell=cell(npoin,3);   %tmpCell(0(1), [... number on boundary ],  [... mqrbfNb coefficents]
 for ipoin=1:npoin
-    tmpCell{ipoin,1}=0;
+    tmpCell{ipoin,1}=0;  
     tmpCell{ipoin,2}=[];
     tmpCell{ipoin,3}=[];
     if typPoints(ipoin)==2
@@ -114,7 +114,7 @@ for ipoin=1:npoin
     pxynbnor=[];
     if tmpCell{ipoin,1}==1 % 1 denotes the present point or some neighbor point on the Neumann boundary
         nbpArray=tmpCell{ipoin,2};
-        for itm=1:length(nbpArray)
+        for itm=1:size(nbpArray,2)
             pxynb=[pxynb; ppp(nbpArray(itm),:)];
             pxynbnor=[pxynbnor; nmlPboun(g2locNmlPbnd(nbpArray(itm)),:)];
         end
@@ -219,11 +219,11 @@ nStep=0;
 % for ipoin=1:npoin
 %     unum(ipoin,1)=uexact(ppp(ipoin,1), ppp(ipoin,2), 0);
 % end
-unum(:,1)=uexact(ppp(:,1), ppp(:,2), 0);
+unum(1:npoin,1)=uexact(ppp(:,1), ppp(:,2), 0);
 
 while Tnow<Tend
-    acoe=zeros(npoin,npoin);
-    Fnum=zeros(npoin,1);
+    acoe=zeros(npoin+numbp,npoin+numbp);
+    Fnum=zeros(npoin+numbp,1);
     Tnow=Tnow+dlt;
     nStep=nStep+1;
     %     if Tnow>Tend
@@ -281,7 +281,8 @@ while Tnow<Tend
             Fnum(ipoin)=uexact(ppp(ipoin,1),ppp(ipoin,2),Tnow);
         end
         %%%neumann boundary can only do for unit circle  
-        if tmpCell{ipoin,1}==1 && typPoints(ipoin)~=2
+      %  if tmpCell{ipoin,1}==1 && typPoints(ipoin)~=2
+        if tmpCell{ipoin,1}==1           
             att1=tmpCell{ipoin,3};
             acoe(ipoin,ipoin)=1;
             for jk=1:n_pointPoint2(ipoin)
@@ -313,11 +314,26 @@ while Tnow<Tend
             end   
             Fnum(ipoin)=bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,nStep-1) ...
                 * unum(ipoin,1)+tmpsum+muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow,dlt) ...
-                 *sourceF(ppp(ipoin,1),ppp(ipoin,2),Tnow);  
+                 *sourceF(ppp(ipoin,1),ppp(ipoin,2),Tnow); 
              
+            npsp=n_pointPoint2(ipoin)+1; 
+            bndp=tmpCell{ipoin,2};
+         %   bndnmlVadd=0.0;
+            %neumBndV(ibn)
+            for jk=npsp+1:size(att1,1)
+                nbpoin=bndp(jk-npsp);
+                rt=-(att1(jk,3)+att1(jk,4)) ...
+                    *kapaFun(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
+                    +(att1(jk,1)*vecSp1(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
+                    +att1(jk,2)*vecSp2(ppp(ipoin,1),ppp(ipoin,2),Tnow));
+                acoe(ipoin,g2locNmlPbnd(nbpoin)+npoin)=acoe(ipoin,g2locNmlPbnd(nbpoin)+npoin) ...
+                    +rt*thet*muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow,dlt);
+                               
+            end             
+          %  Fnum(ipoin)=Fnum(ipoin)+bndnmlVadd; 
         end
         
-        if  typPoints(ipoin)==2
+        if typPoints(ipoin)==2
             if cellBool==0
                 rd2=rdernbMap(ipoin);
                 pxynb=pxynbMap(ipoin);
@@ -330,31 +346,38 @@ while Tnow<Tend
                 pxynbnor=pxynbnorMap{ipoin};
             end
             
-            nor=ppp(ipoin,:);
+            
+            nor=ppp(ipoin,:); %if not unit normal direction, must change
      %      nBoundEq=nBoundEq+1;
             %zeroORnpoin
             if HRBFDQ==1
                 % rt=0.0;
                 for jk=1:n_pointPoint2(ipoin)    
-                    acoe(ipoin,pointsPoint2(ipoin,jk))=rd2(jk,1)*nor(1)+rd2(jk,2)*nor(2);
+                    acoe(npoin+g2locNmlPbnd(ipoin),pointsPoint2(ipoin,jk))=rd2(jk,1)*nor(1)+rd2(jk,2)*nor(2);
                 end
+                tmljm=tmpCell{ipoin,3};
+                tmbptljm=tmpCell{ipoin,2};
+                
                 % xy1=ppp(ipoin,:);
                 nd=n_pointPoint2(ipoin)+1;
 
-                acoe(ipoin,ipoin)=rd2(nd,1)*nor(1)+rd2(nd,2)*nor(2);
+                acoe(npoin+g2locNmlPbnd(ipoin),ipoin)=rd2(nd,1)*nor(1)+rd2(nd,2)*nor(2);
                 
                 npnb=size(pxynb,1);
             
                 rt=0;
                 for jk=1:npnb
-                    tm1=dfx1(pxynb(jk,1),pxynb(jk,2),Tnow)*pxynbnor(jk,1);
-                    tm2=dfy1(pxynb(jk,1),pxynb(jk,2),Tnow)*pxynbnor(jk,2);
-                    rt=rt+(rd2(jk+nd,1)*nor(1)+rd2(jk+nd,2)*nor(2))*(tm1+tm2);
+%                     tm1=dfx1(pxynb(jk,1),pxynb(jk,2),Tnow)*pxynbnor(jk,1);
+%                     tm2=dfy1(pxynb(jk,1),pxynb(jk,2),Tnow)*pxynbnor(jk,2);
+%                     rt=rt+(rd2(jk+nd,1)*nor(1)+rd2(jk+nd,2)*nor(2))*(tm1+tm2);
+                    acoe(npoin+g2locNmlPbnd(ipoin),npoin+g2locNmlPbnd(tmbptljm(jk)))=  ...
+                        rd2(jk+nd,1)*nor(1)+rd2(jk+nd,2)*nor(2);
+
                 end
                 xy1=ppp(ipoin,:);
                 tm1= dfx1(xy1(1),xy1(2),Tnow)*nor(1)+dfy1(xy1(1),xy1(2),Tnow)*nor(2);
 
-                Fnum(ipoin)=tm1-rt;
+                Fnum(npoin+g2locNmlPbnd(ipoin))=tm1;
 
                 
             end
@@ -392,7 +415,7 @@ end
         
 condAcoe=cond(acoe,2);        
         
-uerr=unum(:,NtimeStep+1)-uexact(ppp(:,1),ppp(:,2),Tend);  
+uerr=unum(1:npoin,NtimeStep+1)-uexact(ppp(:,1),ppp(:,2),Tend);  
 lrmserr=sqrt(sum(uerr.^2)/npoin);
 lwqerr=max(abs(uerr));
 l2err=sqrt(sum(uerr.^2)/sum(uexact(ppp(:,1),ppp(:,2),Tend).^2));
@@ -416,7 +439,7 @@ if domain ==2
 end
 
 figure(3)
-plot3(ppp(:,1),ppp(:,2), unum(:,NtimeStep+1), 'b.','MarkerSize',20);
+plot3(ppp(:,1),ppp(:,2), unum(1:npoin,NtimeStep+1), 'b.','MarkerSize',20);
 xlabel('x'); ylabel('y');
 zlabel('u^h({\bf x}, T)');
 grid on
