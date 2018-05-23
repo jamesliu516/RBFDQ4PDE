@@ -6,7 +6,7 @@ clc
 hold off
 % test mqrbf and meshfree grid treatment
 %
-global ppp meshden  pointboun typPoints domain racLow racHigh
+global ppp meshden  pointboun typPoints domain racLow racHigh ttt
 %pointboun: boundary node number
 
 %global n_pointPoint pointsPoint
@@ -27,10 +27,10 @@ cellBool=0; % 1: cell 0: map
 HRBFDQ=1; %0: rbf dq by Shu, 1: hermite RBFDQ
 %boundInEq=0; % 1 include boundary point Eq, 0 no
 
-c=25; 
+c=5; 
 
 global su2mesh
-su2mesh=0;
+su2mesh=1;
 meshfreeTreat;
 
 thet=1;  % theta method
@@ -120,9 +120,8 @@ for ipoin=1:npoin
         end
         
         rdrd= mqrbfNB(pxy11,xy,pxynb, pxynbnor, c);
-    else if tmpCell{ipoin,1}==0
-        rdrd= mqrbf(pxy11,xy, c);    
-        end
+    elseif tmpCell{ipoin,1}==0
+        rdrd= mqrbf(pxy11,xy, c);          
     end
     tmpCell{ipoin,3}=[tmpCell{ipoin,3}, rdrd];   
 end
@@ -449,3 +448,18 @@ plot3(ppp(:,1),ppp(:,2), abs(uerr), 'b.','MarkerSize',20);
 zlabel('Error');
 xlabel('x'); ylabel('y');
 grid on
+
+fid11=fopen('yuntu.plt','w');
+nem=size(ttt,1);
+fprintf(fid11, 'TITLE="u numerical solution"\n');
+fprintf(fid11, 'VARIABLES="x","y","u","error"\n');
+fprintf(fid11, 'ZONE N=%d,E=%d, F=FEPOINT, ET=TRIANGLE\n',npoin,nem);
+for ij=1:npoin
+    fprintf(fid11,'%f   %f   %f   %f\n',ppp(ij,1),ppp(ij,2),unum(ij,NtimeStep+1),uerr(ij));
+end
+
+for ij=1:nem
+    fprintf(fid11,'%d  %d  %d\n', ttt(ij,1),ttt(ij,2),ttt(ij,3));
+end
+
+fclose(fid11);

@@ -1,9 +1,9 @@
 %loadsu2mesh
 
-global ppp ttt  pointboun
+global ppp ttt  pointboun  filenmsu2
 pointboun=[];
-filenm='circleu1sss.su2';
-fid = fopen(filenm, 'r');
+
+fid = fopen(filenmsu2, 'r');
 strele='NELEM=';
 strpoin='NPOIN=';
 ne_line=0;
@@ -40,7 +40,7 @@ pts=zeros(n_posu2,3);
 nline=0;
 ij=1;
 ij2=1;
-fid = fopen(filenm, 'r');
+fid = fopen(filenmsu2, 'r');
 while feof(fid)==0 
     tline=fgetl(fid);
     tline=strtrim(tline);

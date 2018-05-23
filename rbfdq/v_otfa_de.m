@@ -7,30 +7,31 @@ hold off
 % test mqrbf and meshfree grid treatment
 %
 global ppp meshden  pointboun typPoints domain racLow racHigh
+global ttt
 %pointboun: boundary node number
 
 %global n_pointPoint pointsPoint
 
 global n_pointPoint2 pointsPoint2
 
-meshden=0.1;
+meshden=0.05; %0.16, 0.08
 
 examp=1; %different case
-domain=2; %1 [0,1]*[0,1],2: unit circle
+domain=1; %1 [0,1]*[0,1],2: unit circle
 if domain==1
     racLow=[0,0]; % left down
     racHigh=[1,1];  % right up
 end
-boundType=2; %1 Dirichlet, 2 Neumann
+boundType=1; %1 Dirichlet, 2 Neumann
 
 cellBool=0; % 1: cell 0: map
 HRBFDQ=0; %0: rbf dq by Shu, 1: hermite RBFDQ
 boundInEq=0; % 1 include boundary point Eq, 0 no
 
-c=25; 
+c=15; 
 
 global su2mesh
-su2mesh=0;
+su2mesh=1;
 meshfreeTreat;
 
 thet=1;  % theta method
@@ -52,12 +53,22 @@ switch examp
         vecSp1=@(x,y,t) (1 );
         vecSp2=@(x,y,t) (1 );        
         vo_alpha=@(x,y,t) (0.8-0.1*cos(x.*t).* sin(x)-0.1*cos(y.*t).*sin(y));
-       % vo_alpha=@(x,y,t) (1.0);
+       % vo_alpha=@(x,y,t) (0.5);
         sourceF=@(x,y,t) (2*t.^(2-vo_alpha(x,y,t))./gamma(3-vo_alpha(x,y,t)) ...
             +2*x+2*y-4);
         uexact=@(x,y,t) (x.^2+y.^2+t.^2);
         dfx1=@(x,y,t) (2*x);
-        dfy1=@(x,y,t) (2*y);              
+        dfy1=@(x,y,t) (2*y);   
+    case 21
+        kapaFun=@(x,y,t) (0.1 );
+        vecSp1=@(x,y,t) (2 );
+        vecSp2=@(x,y,t) (1 );        
+        vo_alpha=@(x,y,t) (0.55+0.45*sin(x.*y.*t));
+      %  vo_alpha=@(x,y,t) (0.5);
+        sourceF=@(x,y,t)  (x>=-0.5&&x<=-0.3&&y>=-0.5&&y<=-0.3)*5;
+        uexact=@(x,y,t) (0);
+        dfx1=@(x,y,t) (0);
+        dfy1=@(x,y,t) (0);        
     otherwise
         warning('Unexpected example.');
         pause;
@@ -214,7 +225,7 @@ while Tnow<Tend
     nBoundEq=0;
     
     for ipoin=1:npoin
-        if typPoints(ipoin)==0 || (typPoints(ipoin)==2 && boundInEq==1)
+        if typPoints(ipoin)==0 || (boundInEq==1 && typPoints(ipoin)==2 )
             att1=rder{ipoin};
             acoe(ipoin,ipoin)=1;
             for jk=1:n_pointPoint2(ipoin)
@@ -398,3 +409,20 @@ plot3(ppp(:,1),ppp(:,2), abs(uerr), 'b.','MarkerSize',20);
 zlabel('Error');
 xlabel('x'); ylabel('y');
 grid on
+
+
+fid11=fopen('yuntu.plt','w');
+nem=size(ttt,1);
+fprintf(fid11, 'TITLE="u numerical solution"\n');
+fprintf(fid11, 'VARIABLES="x","y","u(t=1)","u(t=0.5)","error"\n');
+fprintf(fid11, 'ZONE N=%d,E=%d, F=FEPOINT, ET=TRIANGLE\n',npoin,nem);
+for ij=1:npoin
+    fprintf(fid11,'%f   %f   %f   %f   %f\n',ppp(ij,1),ppp(ij,2),unum(ij,NtimeStep+1),unum(ij,NtimeStep/2+1),uerr(ij));
+end
+
+for ij=1:nem
+    fprintf(fid11,'%d  %d  %d\n', ttt(ij,1),ttt(ij,2),ttt(ij,3));
+end
+    
+fclose(fid11);
+

@@ -1,15 +1,21 @@
 
-global ppp ttt  pointboun typPoints domain 
+global ppp ttt  pointboun typPoints domain nelem
 %pointboun: boundary node number
 global n_pointPoint2 pointsPoint2
-global n_pointPoint pointsPoint su2mesh
+global n_pointPoint pointsPoint su2mesh filenmsu2
 %meshden=0.025;
 %domain=1;
 switch domain
-    case 1      
-        generateRectangle;
+    case 1  
+        if su2mesh==1
+            filenmsu2='square11by11.su2';            
+            loadsu2mesh;            
+        else
+            generateRectangle;
+        end
     case 2
         if su2mesh ==1
+            filenmsu2='circleu1sss.su2';
             loadsu2mesh;
         else
             generateCircle; % call mesh generation
