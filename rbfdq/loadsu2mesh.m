@@ -1,16 +1,21 @@
 %loadsu2mesh
 
-global ppp ttt  pointboun  filenmsu2
+global ppp ttt  pointboun  filenmsu2  
 pointboun=[];
 
 fid = fopen(filenmsu2, 'r');
-strele='NELEM=';
-strpoin='NPOIN=';
+strele   ='NELEM=';
+strpoin  ='NPOIN=';
+strNmark ='NMARK=';
+strMARKER_TAG  ='MARKER_TAG=';
+strMARKER_ELEMS='MARKER_ELEMS=';
 ne_line=0;
 np_line=0;
+
 nline=0;
 bool1=0;
 bool2=0;
+bool3=0;
 while feof(fid)==0 
     tline=fgetl(fid);
     nline=nline+1;
@@ -27,12 +32,20 @@ while feof(fid)==0
             np_line=nline;
             bool2=1;
         end
+        
+        if strcmp(tline1(1:6),strNmark)
+            n_Nmrksu2=str2num(strtrim(tline1(7:end)));
+        %    np_line=nline;
+            bool3=1;
+        end        
+        
     end
     
-    if bool1==1 && bool2==1
+    if bool1==1 && bool2==1 && bool3==1
         break;
     end
 end
+
 fclose(fid);
 
 pts_e=zeros(n_elsu2,5);

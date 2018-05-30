@@ -8,7 +8,7 @@ su2mesh=2;
 global ppp meshden  pointboun typPoints domain
 %pointboun: boundary node number
 global n_pointPoint2 pointsPoint2
-meshden=0.056;
+meshden=0.1;
 domain=2;
 meshfreeTreat;
 
@@ -22,11 +22,17 @@ meshfreeTreat;
 % dfy1=@(x,y) (2*y+x.^3);
 % dfx1=@(x,y) (3*y.*x.^2);
 
-%%111
-f=@(x,y) ((x-10).^3+y.^3+x+y+6);
-dfx1=@(x,y) (3*(x-10).^2+1);
-dfx2=@(x,y) (6*(x-10));
+f=@(x,y) (x.^3+y.^3+x+y+6);
+dfx1=@(x,y) (3*(x).^2+1);
+dfx2=@(x,y) (6*(x));
 dfy1=@(x,y) (3*y.^2+1);
+
+
+%%111
+% f=@(x,y) ((x-10).^3+y.^3+x+y+6);
+% dfx1=@(x,y) (3*(x-10).^2+1);
+% dfx2=@(x,y) (6*(x-10));
+% dfy1=@(x,y) (3*y.^2+1);
 %%111
 % f=@(x,y) (tanh(9*(y-x))+1)/(tanh(9)+1);
 % dfx1=@(x,y) 9*(tanh(9*(y-x)).^2-1)/(tanh(9)+1);
@@ -172,9 +178,9 @@ for k=1:size(pointboun,1)
     
     nd=n_pointPoint2(ipoin)+1;
     
-    rt=rt+(rd2(nd,1)*nor(1)+rd2(nd,2)*nor(2))*af(ipoin);
+    rt=rt+(rd2(nd,1)*nor(1)+rd2(nd,2)*nor(2))*af(ipoin); % present HRBF-DQ
     rtf2x=rtf2x+rd2(nd,3)*af(ipoin);
-    rt3=rt3+(rd3(nd,1)*nor(1)+rd3(nd,2)*nor(2))*af(ipoin);
+    rt3=rt3+(rd3(nd,1)*nor(1)+rd3(nd,2)*nor(2))*af(ipoin); % shu 
     rtf2xShu=rtf2xShu+rd3(nd,3)*af(ipoin);
     
     npnb=size(pxynb,1);
