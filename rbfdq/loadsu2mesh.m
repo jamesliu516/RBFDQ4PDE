@@ -3,7 +3,6 @@
 global ppp ttt  pointboun  filenmsu2  
 pointboun=[];
 
-fid = fopen(filenmsu2, 'r');
 strele   ='NELEM=';
 strpoin  ='NPOIN=';
 strNmark ='NMARK=';
@@ -12,10 +11,14 @@ strMARKER_ELEMS='MARKER_ELEMS=';
 ne_line=0;
 np_line=0;
 
+
 nline=0;
 bool1=0;
 bool2=0;
 bool3=0;
+
+fid = fopen(filenmsu2, 'r');
+
 while feof(fid)==0 
     tline=fgetl(fid);
     nline=nline+1;
@@ -47,6 +50,62 @@ while feof(fid)==0
 end
 
 fclose(fid);
+
+cellMarkerTag=cell(n_Nmrksu2,1);
+fid = fopen(filenmsu2, 'r');
+jkmrk=1;
+while feof(fid)==0 
+    tline=fgetl(fid);
+  %  nline=nline+1;
+    tline1=strtrim(tline);
+    if length(tline1)>11
+        if strcmp(tline1(1:11),strMARKER_TAG)
+            cellMarkerTag{jkmrk}=strtrim(tline1(12:end));
+           % ne_line=nline;
+           % bool1=1;
+            jkmrk=jkmrk+1;
+        end
+    end
+    
+    if jkmrk> n_Nmrksu2
+        break;
+    end
+end
+fclose(fid);        
+
+%cellMarkerElems=cell(n_Nmrksu2,1);
+numBndryElems=zeros(n_Nmrksu2,1);
+fid = fopen(filenmsu2, 'r');
+mapMarkerNumElems=containers.Map(cellMarkerTag{:},numBndryElems);
+jkmrk=1;
+while feof(fid)==0
+    tline=fgetl(fid);
+    %  nline=nline+1;
+    tline1=strtrim(tline);
+    if length(tline1)>11
+        if strcmp(tline1(1:11),strMARKER_TAG)
+            strTmpLine=strtrim(tline1(12:end));
+            bltmp1=1;
+            
+            while bltmp1==1
+                tline=fgetl(fid);
+                %  nline=nline+1;
+                tline1=strtrim(tline);
+                if strcmp(tline1(1:13),strMARKER_ELEMS)
+                    mapMarkerNumElems(strTmpLine)=str2num(strtrim(tline1(14:end)));
+                    bltmp1=0;
+                end
+            end
+            
+            jkmrk=jkmrk+1;
+        end
+    end
+             
+    if jkmrk> n_Nmrksu2
+        break;
+    end
+end
+fclose(fid);  
 
 pts_e=zeros(n_elsu2,5);
 pts=zeros(n_posu2,3);
