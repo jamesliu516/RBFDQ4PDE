@@ -15,7 +15,8 @@ switch domain
         end
     case 2
         if su2mesh ==1
-            filenmsu2='circleu1sss.su2';
+         %   filenmsu2='circleu1sss.su2'; 
+            filenmsu2='circleWithCircle.su2';
             loadsu2mesh;
         else
             generateCircle; % call mesh generation
@@ -44,7 +45,7 @@ n_pointPoint=zeros(npoin,1); %% the number of point(support points) with common 
 typPoints=zeros(npoin,1); %% the type of the node: 0 inner point, 1 Dirchlet Boundary point
                           %2 Neumann Boundary condition point
                           
-typPoints(pointboun)=1; %1 boudary point
+typPoints(pointboun)=1; %1 boudary point  default Dirichlet boundary
 
 %pointElem=[]; % point with elements
 

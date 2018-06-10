@@ -6,12 +6,14 @@ clc
 hold off
 % test mqrbf and meshfree grid treatment
 %
-global ppp meshden  pointboun typPoints domain racLow racHigh ttt
+global ppp meshden  pointboun typPoints domain racLow racHigh ttt neumannBndryStr
 %pointboun: boundary node number
 
 %global n_pointPoint pointsPoint
 
-global n_pointPoint2 pointsPoint2
+global n_pointPoint2 pointsPoint2  pointNeumboun mapNormalNeumBndry
+% pointNeumboun : Neumann boundary point
+% mapNormalNeumBndry: Normal direction vector at Neumann boundary point 
 
 meshden=0.1;
 
@@ -21,16 +23,20 @@ if domain==1
     racLow=[0,0]; % left down
     racHigh=[1,1];  % right up
 end
-boundType=2; %1 Dirichlet, 2 Neumann
+boundType=1; %1 Dirichlet, 2 Neumann
 
 cellBool=0; % 1: cell 0: map
 HRBFDQ=1; %0: rbf dq by Shu, 1: hermite RBFDQ
 %boundInEq=0; % 1 include boundary point Eq, 0 no
 
-c=5; 
+c=15; 
 
 global su2mesh
 su2mesh=1;
+if su2mesh==1
+    neumannBndryStr='NeumannBndry';  % Neumann boundary condition in su2 mesh,
+                                     % boundary mark should be NeumannBndry                
+end
 meshfreeTreat;
 
 thet=1;  % theta method
@@ -42,7 +48,6 @@ NtimeStep=200;
 Tend=1;
 dlt=Tend/NtimeStep;
 Tnow=0;
-
 
 
 switch examp
@@ -65,8 +70,13 @@ end
 muFun=@(x,y,t,dlt) (dlt.^ vo_alpha(x,y,t).* gamma(2-vo_alpha(x,y,t)));
 bb=@(x,y,t,jj) ((jj+1).^(1-vo_alpha(x,y,t))-jj.^(1-vo_alpha(x,y,t)));
 
-
-typPoints(pointboun)=boundType; %%all boundary points: Neumann boundary points
+if su2mesh==1
+    if ~isempty(pointNeumboun)
+        typPoints(pointNeumboun)=boundType;
+    end    
+else    
+    typPoints(pointboun)=boundType; %%all boundary points: Neumann boundary points
+end
 
 pxy=cell(npoin,1);
 for ipoin=1:npoin
@@ -74,6 +84,13 @@ for ipoin=1:npoin
        pxy{ipoin}=[pxy{ipoin}; ppp(pointsPoint2(ipoin,jk),:)];
     end
 end
+
+if su2mesh==1
+    if ~isempty(pointNeumboun)  && boundType==2
+        pointboun=pointNeumboun;
+    end
+end
+
 numbp=size(pointboun,1);
 nmlPboun=zeros(numbp,2); %normal direction over the boundary points
 g2locNmlPbnd=containers.Map(pointboun,zeros(numbp,1));
@@ -82,14 +99,17 @@ unum=zeros(npoin+numbp,NtimeStep+1);
 Fnum=zeros(npoin+numbp,1);
 
 for ipb=1:numbp
-    nmlPboun(ipb,:)=ppp(pointboun(ipb),:)+1e-6; % only right for unit circle and origin is the center 
+    %nmlPboun(ipb,:)=ppp(pointboun(ipb),:); % only right for unit circle and origin is the center 
+   if boundType==2  
+       nmlPboun(ipb,:)=mapNormalNeumBndry(pointboun(ipb));
+   end
     g2locNmlPbnd(pointboun(ipb))=ipb;
 end
 
 
 tmpCell=cell(npoin,3);   %tmpCell(0(1), [... number on boundary ],  [... mqrbfNb coefficents]
-for ipoin=1:npoin
-    tmpCell{ipoin,1}=0;  
+for ipoin=1:npoin    %check whether there is Neumann boundary point as the supporting point
+    tmpCell{ipoin,1}=0;  % and find all the Neumann boundary points
     tmpCell{ipoin,2}=[];
     tmpCell{ipoin,3}=[];
     if typPoints(ipoin)==2
@@ -160,7 +180,8 @@ for ipoin=1:npoin
         pxynbnor=[];
         pxynb=[pxynb; xy1];
         %nor=(xy1-0.0)/norm(xy1);
-        nor=xy1;
+       % nor=xy1;
+        nor=nmlPboun(g2locNmlPbnd(ipoin),:);
         pxynbnor=[pxynbnor; nor];
         nnbt=1;
         % only one Neumann boundary point then comment following for cycle
@@ -168,7 +189,8 @@ for ipoin=1:npoin
             pnb =find(pointboun==pointsPoint2(ipoin,m));
             if ~isempty(pnb)
                 pxynb=[pxynb; ppp(pointboun(pnb),:)];
-                xytm=ppp(pointboun(pnb),:); % here circle r =1
+               % xytm=ppp(pointboun(pnb),:); % here circle r =1
+                xytm=nmlPboun(pnb,:);
                 pxynbnor=[pxynbnor;xytm];
                 nnbt=nnbt+1;
             end
@@ -346,7 +368,8 @@ while Tnow<Tend
             end
             
             
-            nor=ppp(ipoin,:); %if not unit normal direction, must change
+            %nor=ppp(ipoin,:); %if not unit normal direction, must change
+            nor=nmlPboun(g2locNmlPbnd(ipoin),:);
      %      nBoundEq=nBoundEq+1;
             %zeroORnpoin
             if HRBFDQ==1

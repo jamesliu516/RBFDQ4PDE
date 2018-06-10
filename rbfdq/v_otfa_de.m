@@ -12,12 +12,13 @@ global ttt
 
 %global n_pointPoint pointsPoint
 
-global n_pointPoint2 pointsPoint2
+global n_pointPoint2 pointsPoint2 su2mesh
 
 meshden=0.05; %0.16, 0.08
 
 examp=1; %different case
-domain=1; %1 [0,1]*[0,1],2: unit circle
+domain=2; %1 [0,1]*[0,1],2: unit circle
+su2mesh =1;
 if domain==1
     racLow=[0,0]; % left down
     racHigh=[1,1];  % right up
