@@ -16,14 +16,14 @@ global n_pointPoint2 pointsPoint2 su2mesh
 
 meshden=0.05; %0.16, 0.08
 
-examp=1; %different case
+examp=21; %different case
 domain=2; %1 [0,1]*[0,1],2: unit circle
 su2mesh =1;
 if domain==1
     racLow=[0,0]; % left down
     racHigh=[1,1];  % right up
 end
-boundType=1; %1 Dirichlet, 2 Neumann
+boundType=2; %1 Dirichlet, 2 Neumann
 
 cellBool=0; % 1: cell 0: map
 HRBFDQ=0; %0: rbf dq by Shu, 1: hermite RBFDQ
@@ -62,10 +62,10 @@ switch examp
         dfy1=@(x,y,t) (2*y);   
     case 21
         kapaFun=@(x,y,t) (0.1 );
-        vecSp1=@(x,y,t) (2 );
+        vecSp1=@(x,y,t) (1 );
         vecSp2=@(x,y,t) (1 );        
-        vo_alpha=@(x,y,t) (0.55+0.45*sin(x.*y.*t));
-      %  vo_alpha=@(x,y,t) (0.5);
+       %   vo_alpha=@(x,y,t) (0.55+0.45*sin(x.*y.*t));
+      vo_alpha=@(x,y,t) (1.0);
         sourceF=@(x,y,t)  (x>=-0.5&&x<=-0.3&&y>=-0.5&&y<=-0.3)*5;
         uexact=@(x,y,t) (0);
         dfx1=@(x,y,t) (0);

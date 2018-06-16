@@ -189,6 +189,7 @@ ttt=pts_e(:,2:4)+1;
 
 cd ../
 eboun=boundedges(ppp,ttt);
+cd rbfdq;
 neb=size(eboun,1);
 for i=1:neb
     pointboun=[pointboun eboun(i,:)];
@@ -247,6 +248,6 @@ end
 
 clear eboun;
 fprintf('(Done mesh generation.)\n\n')
-cd rbfdq
+
 
     

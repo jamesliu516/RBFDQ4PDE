@@ -15,8 +15,8 @@ switch domain
         end
     case 2
         if su2mesh ==1
-         %   filenmsu2='circleu1sss.su2'; 
-            filenmsu2='circleWithCircle.su2';
+            filenmsu2='circleu1sss.su2'; 
+         %   filenmsu2='circleWithCircle.su2';
             loadsu2mesh;
         else
             generateCircle; % call mesh generation
