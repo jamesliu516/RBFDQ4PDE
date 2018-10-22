@@ -83,11 +83,16 @@ mapMarkerNumElems=containers.Map(cellMarkerTag(1:n_Nmrksu2),numBndryElems);
 %     mapMarkerNumElems(cellMarkerTag{iii})=0;
 % end
 cellBndryElems=cell(n_Nmrksu2,1);
+% for i=1:n_Nmrksu2
+%     cellBndryElems{i}=[];
+% end
 mapBndryElems=containers.Map(cellMarkerTag(1:n_Nmrksu2),cellBndryElems); 
 % every kind of boundary, the boundary edge, here Elems are same as the su2
 % for boundary edge in 2d
+% cell to save the key string, should use mapBndryElems(cellMarkerTag{1})to
+% get the value(not mapBndryElems(cellMarkerTag(1))  )
 
-%mapBndryNormal=containers.Map(cellMarkerTag{:},cell(n_Nmrksu2,1));
+%mapBndryNormal=containers.Map(cellMarkerTag,cell(n_Nmrksu2,1));
 
 fid = fopen(filenmsu2, 'r');
 jkmrk=1;
@@ -242,7 +247,7 @@ end
 
 
 clear eboun;
-fprintf('(Done mesh generation.)\n\n')
+fprintf('------(Done mesh generation.)-------\n\n')
 
 
     

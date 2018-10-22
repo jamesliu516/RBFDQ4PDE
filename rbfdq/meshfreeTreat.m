@@ -9,17 +9,27 @@ switch domain
     case 1  
         if su2mesh==1
             filenmsu2='square11by11.su2';            
-            loadsu2mesh;            
+            %loadsu2mesh; 
+             loadsu2mesh4ref;   
         else
             generateRectangle;
         end
     case 2
         if su2mesh ==1
-            filenmsu2='circleu1sss.su2'; 
-         %   filenmsu2='circleWithCircle.su2';
-            loadsu2mesh;
+         %     filenmsu2='circleu1sss.su2'; 
+          filenmsu2='circleWithCircle.su2';
+           %loadsu2mesh; 
+            loadsu2mesh4ref;
         else
             generateCircle; % call mesh generation
+        end
+        
+    case 33
+        if su2mesh ==1
+         %     filenmsu2='circleu1sss.su2'; 
+          filenmsu2='part4star.su2';
+           %loadsu2mesh; 
+            loadsu2mesh4ref;  
         end
     otherwise
         warning('Unexpected demain type. No mesh created.');

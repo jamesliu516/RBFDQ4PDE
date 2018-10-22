@@ -7,31 +7,39 @@ hold off
 % test mqrbf and meshfree grid treatment
 %
 global ppp meshden  pointboun typPoints domain racLow racHigh
-global ttt
-%pointboun: boundary node number
+global ttt  neumannBndryStr
+%%%%%%pointboun: boundary node number
 
-%global n_pointPoint pointsPoint
+%%%%%%global n_pointPoint pointsPoint
 
-global n_pointPoint2 pointsPoint2 su2mesh
+global n_pointPoint2 pointsPoint2 su2mesh 
+global mapNormalNeumBndry pointNeumboun
 
 meshden=0.05; %0.16, 0.08
 
-examp=21; %different case
-domain=2; %1 [0,1]*[0,1],2: unit circle
+examp=1; %different case
+domain=33; %1 [0,1]*[0,1],2: unit circle . 33
 su2mesh =1;
+
+if su2mesh==1
+    neumannBndryStr='NeumannBndry';  % Neumann boundary condition in su2 mesh,
+                                     % boundary mark should be NeumannBndry                
+end
+
 if domain==1
     racLow=[0,0]; % left down
     racHigh=[1,1];  % right up
 end
-boundType=2; %1 Dirichlet, 2 Neumann
+boundType=1;      % 1 Dirichlet
+boundTypeNeumB=2; % 2 Neumann
 
 cellBool=0; % 1: cell 0: map
 HRBFDQ=0; %0: rbf dq by Shu, 1: hermite RBFDQ
+
+c=15;
+
 boundInEq=0; % 1 include boundary point Eq, 0 no
-
-c=15; 
-
-global su2mesh
+ 
 su2mesh=1;
 meshfreeTreat;
 
@@ -64,8 +72,8 @@ switch examp
         kapaFun=@(x,y,t) (0.1 );
         vecSp1=@(x,y,t) (1 );
         vecSp2=@(x,y,t) (1 );        
-       %   vo_alpha=@(x,y,t) (0.55+0.45*sin(x.*y.*t));
-      vo_alpha=@(x,y,t) (1.0);
+          vo_alpha=@(x,y,t) (0.55+0.45*sin(x.*y.*t));
+  %    vo_alpha=@(x,y,t) (1.0);
         sourceF=@(x,y,t)  (x>=-0.5&&x<=-0.3&&y>=-0.5&&y<=-0.3)*5;
         uexact=@(x,y,t) (0);
         dfx1=@(x,y,t) (0);
@@ -80,6 +88,7 @@ bb=@(x,y,t,jj) ((jj+1).^(1-vo_alpha(x,y,t))-jj.^(1-vo_alpha(x,y,t)));
 
 
 typPoints(pointboun)=boundType; %%all boundary points: Neumann boundary points
+typPoints(pointNeumboun)=boundTypeNeumB;
 
 pxy=cell(npoin,1);
 for ipoin=1:npoin
@@ -87,10 +96,13 @@ for ipoin=1:npoin
        pxy{ipoin}=[pxy{ipoin}; ppp(pointsPoint2(ipoin,jk),:)];
     end
 end
-numbp=size(pointboun,1);
+% numbp=size(pointboun,1);
+numbp=size(pointNeumboun,1);
+
 nmlPboun=zeros(numbp,2); %normal direction over the boundary points
 for ipb=1:numbp
-    nmlPboun(ipb,:)=ppp(pointboun(ipb),:); % only right for unit circle and origin is the center 
+   % nmlPboun(ipb,:)=ppp(pointboun(ipb),:); % only right for unit circle and origin is the center 
+     nmlPboun(ipb,:)=mapNormalNeumBndry(pointNeumboun(ipb));
 end
 
 tmpCell=cell(npoin,3);   %tmpCell(0(1), [... num on boundary ],  [... mqrbfNb coefficents]
@@ -104,10 +116,10 @@ for ipoin=1:npoin
     end
     
     for m=1:n_pointPoint2(ipoin)
-        pnb =find(pointboun==pointsPoint2(ipoin,m));
+        pnb =find(pointNeumboun==pointsPoint2(ipoin,m));
         if ~isempty(pnb)
             tmpCell{ipoin,1}=1;
-            tmpCell{ipoin,2}=[tmpCell{ipoin,2},pointboun(pnb)];   
+            tmpCell{ipoin,2}=[tmpCell{ipoin,2},pointNeumboun(pnb)];   
         end
     end    
 end
@@ -124,9 +136,9 @@ if cellBool==0
     rdernb=cell(numbp,1);
     rdernb1=cell(numbp,1);
     rdernb2=cell(numbp,1);
-    rdernbMap=containers.Map(pointboun,rdernb);
-    pxynbMap=containers.Map(pointboun,rdernb1);
-    pxynbnorMap=containers.Map(pointboun,rdernb2);
+    rdernbMap=containers.Map(pointNeumboun,rdernb);
+    pxynbMap=containers.Map(pointNeumboun,rdernb1);
+    pxynbnorMap=containers.Map(pointNeumboun,rdernb2);
 end
 
 if cellBool==1
@@ -154,15 +166,17 @@ for ipoin=1:npoin
         pxynbnor=[];
         pxynb=[pxynb; xy1];
         %nor=(xy1-0.0)/norm(xy1);
-        nor=xy1;
+        %nor=xy1;
+        nor=mapNormalNeumBndry(ipoin);
         pxynbnor=[pxynbnor; nor];
         nnbt=1;
-        % only one Neumann boundary point then comment following for cycle
+        % only one Neumann boundary point then comment following for loop
         for m=1:n_pointPoint2(ipoin)
-            pnb =find(pointboun==pointsPoint2(ipoin,m));
+            pnb =find(pointNeumboun==pointsPoint2(ipoin,m));
             if ~isempty(pnb)
-                pxynb=[pxynb; ppp(pointboun(pnb),:)];
-                xytm=ppp(pointboun(pnb),:); % here circle r =1
+                pxynb=[pxynb; ppp(pointNeumboun(pnb),:)];
+             %   xytm=ppp(pointboun(pnb),:); % here circle r =1
+                xytm=mapNormalNeumBndry(pointNeumboun(pnb));
                 pxynbnor=[pxynbnor;xytm];
                 nnbt=nnbt+1;
             end
@@ -223,10 +237,10 @@ while Tnow<Tend
     %         break
     %     end
     
-    nBoundEq=0;
+ %   nBoundEq=0;
     
     for ipoin=1:npoin
-        if typPoints(ipoin)==0 || (boundInEq==1 && typPoints(ipoin)==2 )
+        if typPoints(ipoin)==0
             att1=rder{ipoin};
             acoe(ipoin,ipoin)=1;
             for jk=1:n_pointPoint2(ipoin)
@@ -280,9 +294,9 @@ while Tnow<Tend
 
         end
         
-        if  typPoints(ipoin)==2 && boundInEq==1
-            zeroORnpoin=npoin;          
-        end
+%         if  typPoints(ipoin)==2 && boundInEq==1
+%             zeroORnpoin=npoin;          
+%         end
         
         
         if  typPoints(ipoin)==1
@@ -303,26 +317,27 @@ while Tnow<Tend
                 pxynbnor=pxynbnorMap{ipoin};
             end
             
-            nor=ppp(ipoin,:);
-            nBoundEq=nBoundEq+1;
+           % nor=ppp(ipoin,:);
+            nor=mapNormalNeumBndry(ipoin);
+    %        nBoundEq=nBoundEq+1;
             %zeroORnpoin
             if HRBFDQ==1
                 % rt=0.0;
                 for jk=1:n_pointPoint2(ipoin)
                     %rt=rt+(rd2(jk,1)*nor(1)+rd2(jk,2)*nor(2))*af(pointsPoint2(ipoin,jk));
-                    if boundInEq==1                   
-                        acoe(zeroORnpoin+nBoundEq,pointsPoint2(ipoin,jk))=rd2(jk,1)*nor(1)+rd2(jk,2)*nor(2);
-                    else     
+%                     if boundInEq==1                   
+%                         acoe(zeroORnpoin+nBoundEq,pointsPoint2(ipoin,jk))=rd2(jk,1)*nor(1)+rd2(jk,2)*nor(2);
+%                     else     
                         acoe(ipoin,pointsPoint2(ipoin,jk))=rd2(jk,1)*nor(1)+rd2(jk,2)*nor(2);
-                    end
+%                     end
                 end
                 % xy1=ppp(ipoin,:);
                 nd=n_pointPoint2(ipoin)+1;
-                if boundInEq==1
-                    acoe(zeroORnpoin+nBoundEq,ipoin)=rd2(nd,1)*nor(1)+rd2(nd,2)*nor(2);
-                else
+%                 if boundInEq==1
+%                     acoe(zeroORnpoin+nBoundEq,ipoin)=rd2(nd,1)*nor(1)+rd2(nd,2)*nor(2);
+%                 else
                     acoe(ipoin,ipoin)=rd2(nd,1)*nor(1)+rd2(nd,2)*nor(2);
-                end
+%                end
                 % npnb=size(rd2,1)-nd;
                 
                 npnb=size(pxynb,1);
@@ -335,11 +350,11 @@ while Tnow<Tend
                 end
                 xy1=ppp(ipoin,:);
                 tm1= dfx1(xy1(1),xy1(2),Tnow)*nor(1)+dfy1(xy1(1),xy1(2),Tnow)*nor(2);
-                if boundInEq==1
-                    Fnum(zeroORnpoin+nBoundEq)=tm1-rt;
-                else
+%                 if boundInEq==1
+%                     Fnum(zeroORnpoin+nBoundEq)=tm1-rt;
+%                 else
                     Fnum(ipoin)=tm1-rt;
-                end
+%                 end
                 
             end
             
