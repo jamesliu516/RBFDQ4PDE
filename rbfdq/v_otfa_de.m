@@ -404,13 +404,14 @@ hold off
 
 plot(ppp(:,1),ppp(:,2),'b.','MarkerSize',20);
 hold on
-plot(ppp(pointboun,1),ppp(pointboun,2),'r.','MarkerSize',20);
+plot(ppp(pointboun,1),ppp(pointboun,2),'b.','MarkerSize',20);
+plot(ppp(pointNeumboun,1),ppp(pointNeumboun,2),'r*','MarkerSize',8);
 xlabel('x'); ylabel('y');
 
 if domain==1
     axis([racLow(1),racHigh(1),racLow(2),racHigh(2)])
 end
-if domain ==2
+if domain ==2 ||  domain ==33 
     axis equal
 end
 
@@ -427,7 +428,7 @@ xlabel('x'); ylabel('y');
 grid on
 
 
-fid11=fopen('yuntu.plt','w');
+fid11=fopen('yuntu2.plt','w');
 nem=size(ttt,1);
 fprintf(fid11, 'TITLE="u numerical solution"\n');
 fprintf(fid11, 'VARIABLES="x","y","u(t=1)","u(t=0.5)","error"\n');
