@@ -3,6 +3,12 @@
 clear 
 clc
 %close all
+fprintf('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n');
+fprintf('+   RBFDQ code for PDE, the copyright: Dr Jianming Liu        +\n');
+fprintf('+           Jiangsu Normal University                         +\n');
+fprintf('+            Email: jmliu@jsnu.edu.cn                         +\n');
+fprintf('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n');
+
 hold off
 % test mqrbf and meshfree grid treatment
 %
@@ -17,6 +23,7 @@ global mapNormalNeumBndry pointNeumboun
 
 meshden=0.05; %0.16, 0.08
 
+tic
 examp=1; %different case
 domain=33; %1 [0,1]*[0,1],2: unit circle . 33
 su2mesh =1;
@@ -43,7 +50,7 @@ boundInEq=0; % 1 include boundary point Eq, 0 no
 su2mesh=1;
 meshfreeTreat;
 
-thet=1;  % theta method
+thet=0.5;  % theta method
 
 npoin=size(ppp,1);
 zeroORnpoin=0; %% if boundary points are included in eqs least square method is used
@@ -205,6 +212,7 @@ for ipoin=1:npoin
     end
     
 end
+fprintf('+             Done Pre treatment for MQRBF.                   +\n');
 
 % for ipoin=1:npoin
 %     att1=rder{ipoin};
@@ -240,6 +248,7 @@ while Tnow<Tend
  %   nBoundEq=0;
     
     for ipoin=1:npoin
+        oneMthetSource=0.0;
         if typPoints(ipoin)==0
             att1=rder{ipoin};
             acoe(ipoin,ipoin)=1;
@@ -251,7 +260,13 @@ while Tnow<Tend
                     +att1(jk,2)*vecSp2(ppp(ipoin,1),ppp(ipoin,2),Tnow));
                 acoe(ipoin,nbpoin)=acoe(ipoin,nbpoin) ...
                     +rt*thet*muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow,dlt);
+                oneMthetSource =oneMthetSource + unum(nbpoin,nStep)* ...
+                       ((att1(jk,3)+att1(jk,4)) ...
+                       *kapaFun(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
+                    -(att1(jk,1)*vecSp1(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
+                    +att1(jk,2)*vecSp2(ppp(ipoin,1),ppp(ipoin,2),Tnow)));
             end
+            
             
             % att1(n_pointPoint2(ipoin)+1,1)
             jk=n_pointPoint2(ipoin)+1;
@@ -263,6 +278,16 @@ while Tnow<Tend
                 +att1(jk,2)*vecSp2(ppp(ipoin,1),ppp(ipoin,2),Tnow));
             acoe(ipoin,nbpoin)=acoe(ipoin,nbpoin) ...
                 +rt*thet*muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow,dlt);
+            
+            oneMthetSource= oneMthetSource + unum(nbpoin,nStep)* ...
+                       ((att1(jk,3)+att1(jk,4)) ...
+                      *kapaFun(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
+                   -(att1(jk,1)*vecSp1(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
+                    +att1(jk,2)*vecSp2(ppp(ipoin,1),ppp(ipoin,2),Tnow)));
+                
+            oneMthetSource =oneMthetSource *(1.0 - thet) ...
+                   *muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow,dlt);    
+                
             tmpsum=0;
             %             %nStep == k+1
             %             for itp=1:nStep-2
@@ -290,7 +315,7 @@ while Tnow<Tend
             end   
             Fnum(ipoin)=bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,nStep-1) ...
                 * unum(ipoin,1)+tmpsum+muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow,dlt) ...
-                 *sourceF(ppp(ipoin,1),ppp(ipoin,2),Tnow);
+                 *sourceF(ppp(ipoin,1),ppp(ipoin,2),Tnow) + oneMthetSource;
 
         end
         
@@ -395,17 +420,21 @@ uerr=unum(:,NtimeStep+1)-uexact(ppp(:,1),ppp(:,2),Tend);
 lrmserr=sqrt(sum(uerr.^2)/npoin);
 lwqerr=max(abs(uerr));
 l2err=sqrt(sum(uerr.^2)/sum(uexact(ppp(:,1),ppp(:,2),Tend).^2));
-        
+fprintf('+                  Done Time iteration.                       +\n');
+fprintf('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n');
+
+fprintf('                   '), toc,  fprintf('                     \n')
+fprintf('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n');
     
 
 
 figure(2)
 hold off
 
-plot(ppp(:,1),ppp(:,2),'b.','MarkerSize',20);
+plot(ppp(:,1),ppp(:,2),'b.','MarkerSize',15);
 hold on
-plot(ppp(pointboun,1),ppp(pointboun,2),'b.','MarkerSize',20);
-plot(ppp(pointNeumboun,1),ppp(pointNeumboun,2),'r*','MarkerSize',8);
+plot(ppp(pointboun,1),ppp(pointboun,2),'b.','MarkerSize',15);
+plot(ppp(pointNeumboun,1),ppp(pointNeumboun,2),'r*','MarkerSize',10);
 xlabel('x'); ylabel('y');
 
 if domain==1
@@ -416,13 +445,13 @@ if domain ==2 ||  domain ==33
 end
 
 figure(3)
-plot3(ppp(:,1),ppp(:,2), unum(:,NtimeStep+1), 'b.','MarkerSize',20);
+plot3(ppp(:,1),ppp(:,2), unum(:,NtimeStep+1), 'b.','MarkerSize',15);
 xlabel('x'); ylabel('y');
 zlabel('u^h({\bf x}, T)');
 grid on
 
 figure(4)
-plot3(ppp(:,1),ppp(:,2), abs(uerr), 'b.','MarkerSize',20);
+plot3(ppp(:,1),ppp(:,2), abs(uerr), 'b.','MarkerSize',15);
 zlabel('Error');
 xlabel('x'); ylabel('y');
 grid on

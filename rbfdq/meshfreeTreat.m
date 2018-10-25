@@ -168,6 +168,7 @@ end
 %clear pointsPoint;
 clear elemPoint;
 
+fprintf('+       Done mesh generation and neighbor point finding.      +\n');
                             
                             
                             

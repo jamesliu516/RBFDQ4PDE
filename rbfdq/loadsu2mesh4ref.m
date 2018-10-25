@@ -247,7 +247,8 @@ end
 
 
 clear eboun;
-fprintf('------(Done mesh generation.)-------\n\n')
+fprintf('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n');
+fprintf('+                       Done mesh loading.                    +\n');
 
 
     
