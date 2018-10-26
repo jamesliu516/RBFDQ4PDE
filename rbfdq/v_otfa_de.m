@@ -1,6 +1,6 @@
 %variable-order time fractional advection-diffusion equation solver
 %v_otfa_de
-clear 
+clear global
 clc
 %close all
 fprintf('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n');
@@ -16,17 +16,17 @@ global ppp meshden  pointboun typPoints domain racLow racHigh
 global ttt  neumannBndryStr
 %%%%%%pointboun: boundary node number
 
-%%%%%%global n_pointPoint pointsPoint
+%%%global n_pointPoint pointsPoint
 
 global n_pointPoint2 pointsPoint2 su2mesh 
 global mapNormalNeumBndry pointNeumboun
 
-meshden=0.05; %0.16, 0.08
+meshden=0.1; %0.16, 0.08
 
 tic
 examp=1; %different case
-domain=33; %1 [0,1]*[0,1],2: unit circle . 33
-su2mesh =1;
+domain=2; %1 [0,1]*[0,1],2: unit circle . 33
+su2mesh = 0;
 
 if su2mesh==1
     neumannBndryStr='NeumannBndry';  % Neumann boundary condition in su2 mesh,
@@ -47,10 +47,10 @@ c=15;
 
 boundInEq=0; % 1 include boundary point Eq, 0 no
  
-su2mesh=1;
+
 meshfreeTreat;
 
-thet=0.5;  % theta method
+thet=0.0;  % theta method
 
 npoin=size(ppp,1);
 zeroORnpoin=0; %% if boundary points are included in eqs least square method is used
@@ -143,9 +143,11 @@ if cellBool==0
     rdernb=cell(numbp,1);
     rdernb1=cell(numbp,1);
     rdernb2=cell(numbp,1);
+    if numbp > 0
     rdernbMap=containers.Map(pointNeumboun,rdernb);
     pxynbMap=containers.Map(pointNeumboun,rdernb1);
     pxynbnorMap=containers.Map(pointNeumboun,rdernb2);
+    end
 end
 
 if cellBool==1

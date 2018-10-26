@@ -124,6 +124,8 @@ end
 %找到第二层单元的点
 n_pointPoint2=n_pointPoint;
 pointsPoint2=pointsPoint;
+onlyNearestNeighbor=0;
+if onlyNearestNeighbor==0
 for ipn=1:npoin   %点ipn
     for ip=1:n_pointPoint(ipn) %点ipn周围第一层点的数目n_pointPoint(ipn)
         %n_elemPoint(pointsPoint(ipn,ip))周围第一层第ip个点有几个单元共此点
@@ -162,6 +164,7 @@ for ipn=1:npoin   %点ipn
             end
         end
     end
+end
 end
 
 %clear n_pointPoint;
