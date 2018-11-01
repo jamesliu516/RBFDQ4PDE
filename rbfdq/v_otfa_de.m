@@ -13,7 +13,7 @@ hold off
 % test mqrbf and meshfree grid treatment
 %
 global ppp meshden  pointboun typPoints domain racLow racHigh
-global ttt  neumannBndryStr
+global ttt  neumannBndryStr  filenmsu2
 %%%%%%pointboun: boundary node number
 
 %%%global n_pointPoint pointsPoint
@@ -25,13 +25,15 @@ meshden=0.1; %0.16, 0.08
 
 tic
 examp=1; %different case
-domain=2; %1 [0,1]*[0,1],2: unit circle . 33
-su2mesh = 0;
+domain=44; %1 [0,1]*[0,1],2: unit circle . 33: star with 90 degree circle
+            %44 any su2 grid
+su2mesh = 1;
+%filenmsu2='nonRegularDom3.su2';
+%filenmsu2='nonRegularN6_3.su2';
+filenmsu2='part4star.su2';
 
-if su2mesh==1
-    neumannBndryStr='NeumannBndry';  % Neumann boundary condition in su2 mesh,
+neumannBndryStr='NeumannBndry';  % Neumann boundary condition in su2 mesh,
                                      % boundary mark should be NeumannBndry                
-end
 
 if domain==1
     racLow=[0,0]; % left down
@@ -50,7 +52,7 @@ boundInEq=0; % 1 include boundary point Eq, 0 no
 
 meshfreeTreat;
 
-thet=0.0;  % theta method
+thet=1.0;  % theta method
 
 npoin=size(ppp,1);
 zeroORnpoin=0; %% if boundary points are included in eqs least square method is used
@@ -84,10 +86,34 @@ switch examp
         sourceF=@(x,y,t)  (x>=-0.5&&x<=-0.3&&y>=-0.5&&y<=-0.3)*5;
         uexact=@(x,y,t) (0);
         dfx1=@(x,y,t) (0);
-        dfy1=@(x,y,t) (0);        
+        dfy1=@(x,y,t) (0); 
+    case 31
+        gsZd=0.05;
+        kapaFun=@(x,y,t) (3+t.^2);
+        vecSp1=@(x,y,t) (0.0 );
+        vecSp2=@(x,y,t) (0.0 );  
+        vo_alpha=@(x,y,t) (0.8-0.1*cos(x.*t).* sin(x)-0.1*cos(y.*t).*sin(y)); %0.5
+        bt1=0.1;
+        
+        gaussF=@(x,y)  ( exp( (-(x-gsZd).^2 -(y-gsZd).^2)/bt1  )   );
+        uexact=@(x,y,t)  ( t.^2 .*  gaussF(x,y) );
+        dudx=@(x,y,t)  (   -2*(x-gsZd)/bt1 .*uexact(x,y,t)   );
+        dudy=@(x,y,t)  (   -2*(y-gsZd)/bt1 .*uexact(x,y,t)   );
+        d2udxx=@(x,y,t)  (  (-2 + 4*(x-gsZd).^2 /bt1 ) /bt1 .*uexact(x,y,t) );
+        d2udyy=@(x,y,t)  (  (-2 + 4*(y-gsZd).^2 /bt1 ) /bt1 .*uexact(x,y,t) );
+%        daudt=@(x,y,t)  (  2.0 ./gamma( 1-vo_alpha(x,y,t) ) ./ (1-vo_alpha(x,y,t)) ...
+ %          ./ (2-vo_alpha(x,y,t)) ./(t.^(vo_alpha(x,y,t))) .* uexact(x,y,t) );
+       daudt=@(x,y,t)  (  2.0 ./gamma( 3-vo_alpha(x,y,t) )  ...
+           ./(t.^(vo_alpha(x,y,t))) .* uexact(x,y,t) );
+       
+        sourceF=@(x,y,t) ( daudt(x,y,t) - kapaFun(x,y,t).*(d2udxx(x,y,t)+d2udyy(x,y,t)) );
+        dfx1=@(x,y,t) dudx(x,y,t);
+        dfy1=@(x,y,t) dudy(x,y,t);
+        
     otherwise
         warning('Unexpected example.');
         pause;
+        return;
 end
 
 muFun=@(x,y,t,dlt) (dlt.^ vo_alpha(x,y,t).* gamma(2-vo_alpha(x,y,t)));
@@ -433,9 +459,9 @@ fprintf('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n');
 figure(2)
 hold off
 
-plot(ppp(:,1),ppp(:,2),'b.','MarkerSize',15);
+plot(ppp(:,1),ppp(:,2),'b.','MarkerSize',12);
 hold on
-plot(ppp(pointboun,1),ppp(pointboun,2),'b.','MarkerSize',15);
+plot(ppp(pointboun,1),ppp(pointboun,2),'b.','MarkerSize',10);
 plot(ppp(pointNeumboun,1),ppp(pointNeumboun,2),'r*','MarkerSize',10);
 xlabel('x'); ylabel('y');
 
@@ -445,7 +471,7 @@ end
 if domain ==2 ||  domain ==33 
     axis equal
 end
-
+  axis equal
 figure(3)
 plot3(ppp(:,1),ppp(:,2), unum(:,NtimeStep+1), 'b.','MarkerSize',15);
 xlabel('x'); ylabel('y');
