@@ -30,8 +30,11 @@ domain=44; %1 [0,1]*[0,1],2: unit circle . 33: star with 90 degree circle
 su2mesh = 1;
 %filenmsu2='nonRegularDom3.su2';
 %filenmsu2='nonRegularN6_3.su2';
-filenmsu2='part4star.su2';
-
+%filenmsu2='part4star.su2';
+%filenmsu2='circleu1esssUni2.su2'; 
+%filenmsu2='circleu1esssUni2.su2'; 
+%filenmsu2='circleF00Neu.su2'; 
+filenmsu2='circleF00Dir.su2'; 
 neumannBndryStr='NeumannBndry';  % Neumann boundary condition in su2 mesh,
                                      % boundary mark should be NeumannBndry                
 
@@ -57,7 +60,7 @@ thet=1.0;  % theta method
 npoin=size(ppp,1);
 zeroORnpoin=0; %% if boundary points are included in eqs least square method is used
                                              
-NtimeStep=200;
+NtimeStep=1000;
 Tend=1;
 dlt=Tend/NtimeStep;
 Tnow=0;
