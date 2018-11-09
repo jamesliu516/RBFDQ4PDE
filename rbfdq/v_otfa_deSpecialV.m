@@ -395,12 +395,12 @@ while Tnow<Tend
 %                 kksp=kksp+1;
    %111sparse matrix treatment  
    % for Dirichlet boundary
-            Fnum(ipoin)=uexact(ppp(ipoin,1),ppp(ipoin,2),Tnow);
-%           Fnum(ipoin)=0.0;
-%           for ljm1=1:n_pointPoint2(ipoin)
-%               nppp=pointsPoint2(ipoin,ljm1);
-%               Fnum(ipoin)=Fnum(ipoin)+unum(nppp,nStep)/n_pointPoint2(ipoin);
-%           end
+          %  Fnum(ipoin)=uexact(ppp(ipoin,1),ppp(ipoin,2),Tnow);
+          Fnum(ipoin)=0.0;
+          for ljm1=1:n_pointPoint2(ipoin)
+              nppp=pointsPoint2(ipoin,ljm1);
+              Fnum(ipoin)=Fnum(ipoin)+unum(nppp,nStep)/n_pointPoint2(ipoin);
+          end
         end
         %%%neumann boundary can only do for unit circle  
         if  typPoints(ipoin)==2
