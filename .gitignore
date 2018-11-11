@@ -8,5 +8,6 @@
 *.mexmac
 *.mexw32
 *.mexw64
+*.eps
 rbfdq/.DS_Store
 .DS_Store

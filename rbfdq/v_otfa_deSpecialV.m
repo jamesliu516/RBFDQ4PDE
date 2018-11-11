@@ -1,5 +1,7 @@
 %variable-order time fractional advection-diffusion equation solver
-%v_otfa_de
+%v_otfa_de special version for air pollution modeling
+% special for alpha=1, old version for internal equation at right hand term
+% wrong , 0^0=1, and 0^0.5=0
 clear global
 clc
 %close all
@@ -18,8 +20,8 @@ global ttt  neumannBndryStr  filenmsu2 onlyNearestNeighbor
 
 %%%global n_pointPoint pointsPoint
 
-global n_pointPoint2 pointsPoint2 su2mesh 
-global mapNormalNeumBndry pointNeumboun
+global n_pointPoint2 pointsPoint2 su2mesh filenmsu2Sol
+global mapNormalNeumBndry pointNeumboun  vecVel
 
 meshden=0.1; %0.16, 0.08
 
@@ -37,6 +39,8 @@ su2mesh = 1;
 %filenmsu2='circleF02NeuN2.su2'; 
 %filenmsu2='circleF02Dir2.su2'; 
 filenmsu2='b4MatlabDir.su2'; 
+
+filenmsu2Sol='flowVx1Vy0p5.plt';
 neumannBndryStr='NeumannBndry';  % Neumann boundary condition in su2 mesh,
                                      % boundary mark should be NeumannBndry                
 
@@ -57,14 +61,16 @@ boundInEq=0; % 1 include boundary point Eq, 0 no
  
 
 meshfreeTreat;
-
+loadsu2CFDsol;
+%return;
 thet=1.0;  % theta method
 
 npoin=size(ppp,1);
+ppp=3+ppp;
 zeroORnpoin=0; %% if boundary points are included in eqs least square method is used
                                              
-NtimeStep=200;
-Tend=2;
+NtimeStep=400;
+Tend=8;
 dlt=Tend/NtimeStep;
 Tnow=0;
 
@@ -84,12 +90,12 @@ switch examp
         dfx1=@(x,y,t) (2*x);
         dfy1=@(x,y,t) (2*y);   
     case 21
-        kapaFun=@(x,y,t) (0.1 );
+        kapaFun=@(x,y,t) (0.2 );
         vecSp1=@(x,y,t) (1 );
         vecSp2=@(x,y,t) (1 );        
-          vo_alpha=@(x,y,t) (0.55+0.45*sin(x.*y.*t));
-  %    vo_alpha=@(x,y,t) (1.0);
-        sourceF=@(x,y,t)  (x>=-0.5&&x<=-0.3&&y>=-0.5&&y<=-0.3)*5;
+         vo_alpha=@(x,y,t) (0.55+0.45*sin(x.*y.*t));
+    %   vo_alpha=@(x,y,t) (1.0);
+        sourceF=@(x,y,t)  (x>=3-0.5&&x<=3-0.3&&y>=3-0.5&&y<=3-0.3)*5;
         uexact=@(x,y,t) (0);
         dfx1=@(x,y,t) (0);
         dfy1=@(x,y,t) (0); 
@@ -299,13 +305,19 @@ while Tnow<Tend
 %             Vsp(kksp)=1;
 %             kksp=kksp+1;
      %111sparse matrix treatment   
-     
+     % 
+%             vecx=vecSp1(ppp(ipoin,1),ppp(ipoin,2),Tnow);
+%             vecy=vecSp2(ppp(ipoin,1),ppp(ipoin,2),Tnow);
+            vecx=vecVel(ipoin,1);
+            vecy=vecVel(ipoin,2);
+
             for jk=1:n_pointPoint2(ipoin)
                 nbpoin=pointsPoint2(ipoin,jk);
+               
                 rt=-(att1(jk,3)+att1(jk,4)) ...
                     *kapaFun(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
-                    +(att1(jk,1)*vecSp1(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
-                    +att1(jk,2)*vecSp2(ppp(ipoin,1),ppp(ipoin,2),Tnow));
+                    +(att1(jk,1)*vecx ...
+                    +att1(jk,2)*vecy);
                 acoe(ipoin,nbpoin)=acoe(ipoin,nbpoin) ...
                     +rt*thet*muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow,dlt);
    %000sparse matrix treatment                
@@ -317,8 +329,8 @@ while Tnow<Tend
                 oneMthetSource =oneMthetSource + unum(nbpoin,nStep)* ...
                        ((att1(jk,3)+att1(jk,4)) ...
                        *kapaFun(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
-                    -(att1(jk,1)*vecSp1(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
-                    +att1(jk,2)*vecSp2(ppp(ipoin,1),ppp(ipoin,2),Tnow)));
+                    -(att1(jk,1)*vecx ...
+                    +att1(jk,2)*vecy));
             end
             
             
@@ -328,8 +340,8 @@ while Tnow<Tend
             nbpoin=ipoin;
             rt=-(att1(jk,3)+att1(jk,4)) ...
                 *kapaFun(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
-                +(att1(jk,1)*vecSp1(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
-                +att1(jk,2)*vecSp2(ppp(ipoin,1),ppp(ipoin,2),Tnow));
+                +(att1(jk,1)*vecx ...
+                +att1(jk,2)*vecy);
             acoe(ipoin,nbpoin)=acoe(ipoin,nbpoin) ...
                +rt*thet*muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow,dlt);
 
@@ -343,8 +355,8 @@ while Tnow<Tend
             oneMthetSource= oneMthetSource + unum(nbpoin,nStep)* ...
                        ((att1(jk,3)+att1(jk,4)) ...
                       *kapaFun(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
-                   -(att1(jk,1)*vecSp1(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
-                    +att1(jk,2)*vecSp2(ppp(ipoin,1),ppp(ipoin,2),Tnow)));
+                   -(att1(jk,1)*vecx ...
+                    +att1(jk,2)*vecy));
                 
             oneMthetSource =oneMthetSource *(1.0 - thet) ...
                    *muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow,dlt);    
@@ -360,23 +372,23 @@ while Tnow<Tend
             %                 *unum(ipoin,nStep-1+1)+ tmpsum+bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,nStep) ...
             %                 *unum(ipoin,0+1)+muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
             %                 *sourceF(ppp(ipoin,1),ppp(ipoin,2),Tnow);
-%             for itp=1:nStep-1
-%                 tmpsum=tmpsum+bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,itp) ...
-%                     *(unum(ipoin,nStep-1-itp+2)-unum(ipoin,nStep-1-itp+1));
-%             end
-% 
-%             Fnum(ipoin)=unum(ipoin,nStep-1+1)-tmpsum+ ...
-%                 muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow) ...
-%                 *sourceF(ppp(ipoin,1),ppp(ipoin,2),Tnow);
-
             for itp=1:nStep-1
-                tmpsum=tmpsum+(bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,nStep-itp-1) ...
-                    -bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,nStep-itp)) ...
-                    *unum(ipoin,itp+1);
-            end   
-            Fnum(ipoin)=bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,nStep-1) ...
-                * unum(ipoin,1)+tmpsum+muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow,dlt) ...
-                 *sourceF(ppp(ipoin,1),ppp(ipoin,2),Tnow) + oneMthetSource;
+                tmpsum=tmpsum+bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,itp) ...
+                    *(unum(ipoin,nStep-1-itp+2)-unum(ipoin,nStep-1-itp+1));
+            end
+
+            Fnum(ipoin)=unum(ipoin,nStep-1+1)-tmpsum+ ...
+                muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow,dlt) ...
+                *sourceF(ppp(ipoin,1),ppp(ipoin,2),Tnow) + oneMthetSource;
+
+%             for itp=1:nStep-1
+%                 tmpsum=tmpsum+(bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,nStep-itp-1) ...
+%                     -bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,nStep-itp)) ...
+%                     *unum(ipoin,itp+1);
+%             end   
+%             Fnum(ipoin)=bb(ppp(ipoin,1),ppp(ipoin,2),Tnow,nStep-1) ...
+%                 * unum(ipoin,1)+tmpsum+muFun(ppp(ipoin,1),ppp(ipoin,2),Tnow,dlt) ...
+%                  *sourceF(ppp(ipoin,1),ppp(ipoin,2),Tnow) + oneMthetSource;
 
         end
         
@@ -552,13 +564,15 @@ xlabel('x'); ylabel('y');
 grid on
 
 
-fid11=fopen('yuntu2.plt','w');
+fid11=fopen('yuntuYaphaV.plt','w');
 nem=size(ttt,1);
 fprintf(fid11, 'TITLE="u numerical solution"\n');
-fprintf(fid11, 'VARIABLES="x","y","u(t=1)","u(t=0.5)","error"\n');
+fprintf(fid11, 'VARIABLES="x","y","u(t=%.2f)","u(t= %.2f)","error", "x-velocity","y-velocity", "magnitudeV" \n',Tend,Tend/2);
 fprintf(fid11, 'ZONE N=%d,E=%d, F=FEPOINT, ET=TRIANGLE\n',npoin,nem);
 for ij=1:npoin
-    fprintf(fid11,'%f   %f   %f   %f   %f\n',ppp(ij,1),ppp(ij,2),unum(ij,NtimeStep+1),unum(ij,NtimeStep/2+1),uerr(ij));
+    fprintf(fid11,'%f   %f   %f   %f   %f   %f    %f    %f\n',....
+        ppp(ij,1),ppp(ij,2),unum(ij,NtimeStep+1),unum(ij,NtimeStep/2+1),uerr(ij),...
+        vecVel(ij,1), vecVel(ij,2), norm(vecVel(ij,:)));
 end
 
 for ij=1:nem

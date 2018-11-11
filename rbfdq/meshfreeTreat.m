@@ -1,8 +1,8 @@
 
 global ppp ttt  pointboun typPoints domain nelem
 %pointboun: boundary node number
-global n_pointPoint2 pointsPoint2
-global n_pointPoint pointsPoint su2mesh filenmsu2
+global n_pointPoint2 pointsPoint2  onlyNearestNeighbor
+global n_pointPoint pointsPoint su2mesh filenmsu2 
 %meshden=0.025;
 %domain=1;
 switch domain
@@ -131,7 +131,7 @@ end
 %找到第二层单元的点
 n_pointPoint2=n_pointPoint;
 pointsPoint2=pointsPoint;
-onlyNearestNeighbor=0;
+
 if onlyNearestNeighbor==0
 for ipn=1:npoin   %点ipn
     for ip=1:n_pointPoint(ipn) %点ipn周围第一层点的数目n_pointPoint(ipn)
