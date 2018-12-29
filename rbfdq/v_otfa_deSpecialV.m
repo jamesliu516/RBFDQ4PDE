@@ -93,8 +93,11 @@ switch examp
         kapaFun=@(x,y,t) (0.2 );
         vecSp1=@(x,y,t) (1 );
         vecSp2=@(x,y,t) (1 );        
-         vo_alpha=@(x,y,t) (0.55+0.45*sin(x.*y.*t));
+   %      vo_alpha=@(x,y,t) (0.55+0.45*sin(x.*y.*t));
+   
+     %   vo_alpha=@(x,y,t) (0.85+0.15*sin(x.*y.*t));
     %   vo_alpha=@(x,y,t) (1.0);
+        vo_alpha=@(x,y,t) (0.55);
         sourceF=@(x,y,t)  (x>=3-0.5&&x<=3-0.3&&y>=3-0.5&&y<=3-0.3)*5;
         uexact=@(x,y,t) (0);
         dfx1=@(x,y,t) (0);
@@ -564,14 +567,14 @@ xlabel('x'); ylabel('y');
 grid on
 
 
-fid11=fopen('yuntuYaphaV.plt','w');
+fid11=fopen('yuntuYaphaConst0p55.plt','w');
 nem=size(ttt,1);
 fprintf(fid11, 'TITLE="u numerical solution"\n');
-fprintf(fid11, 'VARIABLES="x","y","u(t=%.2f)","u(t= %.2f)","error", "x-velocity","y-velocity", "magnitudeV" \n',Tend,Tend/2);
+fprintf(fid11, 'VARIABLES="x","y","u(t=%.2f)","u(t= %.2f)","u(t= %.2f)","u(t= %.2f)","error", "x-velocity","y-velocity", "magnitudeV" \n',Tend,Tend/2,Tend/4,Tend/8);
 fprintf(fid11, 'ZONE N=%d,E=%d, F=FEPOINT, ET=TRIANGLE\n',npoin,nem);
 for ij=1:npoin
-    fprintf(fid11,'%f   %f   %f   %f   %f   %f    %f    %f\n',....
-        ppp(ij,1),ppp(ij,2),unum(ij,NtimeStep+1),unum(ij,NtimeStep/2+1),uerr(ij),...
+    fprintf(fid11,'%f   %f   %f   %f   %f   %f    %f    %f    %f     %f\n',....
+        ppp(ij,1),ppp(ij,2),unum(ij,NtimeStep+1),unum(ij,NtimeStep/2+1),unum(ij,NtimeStep/4+1),unum(ij,NtimeStep/8+1),uerr(ij),...
         vecVel(ij,1), vecVel(ij,2), norm(vecVel(ij,:)));
 end
 

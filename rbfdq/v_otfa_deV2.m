@@ -1,5 +1,8 @@
 %variable-order time fractional advection-diffusion equation solver
 %v_otfa_de
+% special for alpha=1, old version for internal equation at right hand term
+% wrong , 0^0=1, and 0^0.5=0
+
 clear 
 clc
 %close all
