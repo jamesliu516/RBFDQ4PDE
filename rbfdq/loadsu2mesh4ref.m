@@ -137,7 +137,7 @@ while feof(fid)==0
             jkmrk=jkmrk+1;
             tline=fgetl(fid);
             bltmp1=1;
-            arr4BndryEdges=zeros(mapMarkerNumElems(strTmpLine),2); % for 2d
+            arr4BndryEdges=zeros(mapMarkerNumElems(strTmpLine),2); %for 2d
             
             while bltmp1<=mapMarkerNumElems(strTmpLine)
                 tline=fgetl(fid);

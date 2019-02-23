@@ -1,4 +1,4 @@
-%loadsu2CFDsol.m
+%loadsu2CFDsol.m su2 v6.1
 
 global ppp  filenmsu2Sol vecVel
 np1=size(ppp,1);
@@ -25,7 +25,7 @@ fclose(fid);
 
 
 
-fprintf('+               Done CFD solution loading.                    +\n');
+fprintf('+         SU2v6.1 Done CFD solution loading.                +\n');
 
 
     

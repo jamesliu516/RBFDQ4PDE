@@ -50,8 +50,8 @@ npoin=size(ppp,1);
 %pstart=zeros(npoin,1);
 %pend=zeros(npoin,1);
 threeP=3;
-maxElems=20;
-maxPoints=25;
+maxElems=20; %20
+maxPoints=25;%25
 elemPoint=zeros(npoin,maxElems); %elements aroung a point
 pointsPoint=zeros(npoin,maxPoints);
 
