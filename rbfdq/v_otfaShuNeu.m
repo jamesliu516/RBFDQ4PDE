@@ -27,7 +27,7 @@ global mapNormalNeumBndry pointNeumboun  vecVel
 meshden=0.1; %0.16, 0.08
 
 tic
-examp=21; %different case
+examp=1; %different case
 domain=44; %1 [0,1]*[0,1],2: unit circle . 33: star with 90 degree circle
             %44 any su2 grid
 su2mesh = 1;
@@ -37,11 +37,11 @@ su2mesh = 1;
 %filenmsu2='circleu1esssUni2.su2'; 
 %filenmsu2='circleu1esssUni2.su2'; 
 %filenmsu2='circleF00Neu.su2'; 
-%filenmsu2='circleF02NeuN2.su2'; 
+filenmsu2='circleF02NeuN2.su2'; 
 %filenmsu2='circleF02Dir2.su2'; 
-filenmsu2='b4MatlabDir.su2'; 
+%filenmsu2='b4MatlabDir.su2'; 
 %必须注意如果不是污染的例子一定需要修改while循环的Dirchlet边界条件的计算部分
-filenmsu2Sol='flowVx1Vy0p5.plt';
+%filenmsu2Sol='flowVx1Vy0p5.plt';
 neumannBndryStr='NeumannBndry';  % Neumann boundary condition in su2 mesh,
                                      % boundary mark should be NeumannBndry                
 
@@ -62,16 +62,16 @@ boundInEq=0; % 1 include boundary point Eq, 0 no
  
 
 meshfreeTreat;
-loadsu2CFDsol;
+%loadsu2CFDsol;
 %return;
 thet=1.0;  % theta method
 
 npoin=size(ppp,1);
-ppp=3+ppp;
+%ppp=3+ppp;
 zeroORnpoin=0; %% if boundary points are included in eqs least square method is used
                                              
-NtimeStep=400;
-Tend=8;
+NtimeStep=200;
+Tend=1;
 dlt=Tend/NtimeStep;
 Tnow=0;
 
@@ -84,7 +84,7 @@ switch examp
         vecSp1=@(x,y,t) (1 );
         vecSp2=@(x,y,t) (1 );        
         vo_alpha=@(x,y,t) (0.8-0.1*cos(x.*t).* sin(x)-0.1*cos(y.*t).*sin(y));
-       % vo_alpha=@(x,y,t) (0.5);
+     %  vo_alpha=@(x,y,t) (1.0);
         sourceF=@(x,y,t) (2*t.^(2-vo_alpha(x,y,t))./gamma(3-vo_alpha(x,y,t)) ...
             +2*x+2*y-4);
         uexact=@(x,y,t) (x.^2+y.^2+t.^2);
@@ -310,10 +310,10 @@ while Tnow<Tend
 %             kksp=kksp+1;
      %111sparse matrix treatment   
      % 
-%             vecx=vecSp1(ppp(ipoin,1),ppp(ipoin,2),Tnow);
-%             vecy=vecSp2(ppp(ipoin,1),ppp(ipoin,2),Tnow);
-            vecx=vecVel(ipoin,1);
-            vecy=vecVel(ipoin,2);
+             vecx=vecSp1(ppp(ipoin,1),ppp(ipoin,2),Tnow);
+             vecy=vecSp2(ppp(ipoin,1),ppp(ipoin,2),Tnow);
+  %          vecx=vecVel(ipoin,1);
+  %          vecy=vecVel(ipoin,2);
 
             for jk=1:n_pointPoint2(ipoin)
                 nbpoin=pointsPoint2(ipoin,jk);
@@ -411,12 +411,12 @@ while Tnow<Tend
 %                 kksp=kksp+1;
    %111sparse matrix treatment  
    % for Dirichlet boundary
-          %  Fnum(ipoin)=uexact(ppp(ipoin,1),ppp(ipoin,2),Tnow);
-          Fnum(ipoin)=0.0;
-          for ljm1=1:n_pointPoint2(ipoin)
-              nppp=pointsPoint2(ipoin,ljm1);
-              Fnum(ipoin)=Fnum(ipoin)+unum(nppp,nStep)/n_pointPoint2(ipoin);
-          end
+            Fnum(ipoin)=uexact(ppp(ipoin,1),ppp(ipoin,2),Tnow);
+%           Fnum(ipoin)=0.0;
+%           for ljm1=1:n_pointPoint2(ipoin)
+%               nppp=pointsPoint2(ipoin,ljm1);
+%               Fnum(ipoin)=Fnum(ipoin)+unum(nppp,nStep)/n_pointPoint2(ipoin);
+%           end
         end
         %%%neumann boundary can only do for unit circle  
         if  typPoints(ipoin)==2
@@ -567,21 +567,21 @@ zlabel('Error');
 xlabel('x'); ylabel('y');
 grid on
 
-
-fid11=fopen('yuntuYaphaConst0p55.plt','w');
-nem=size(ttt,1);
-fprintf(fid11, 'TITLE="u numerical solution"\n');
-fprintf(fid11, 'VARIABLES="x","y","u(t=%.2f)","u(t= %.2f)","u(t= %.2f)","u(t= %.2f)","error", "x-velocity","y-velocity", "magnitudeV" \n',Tend,Tend/2,Tend/4,Tend/8);
-fprintf(fid11, 'ZONE N=%d,E=%d, F=FEPOINT, ET=TRIANGLE\n',npoin,nem);
-for ij=1:npoin
-    fprintf(fid11,'%f   %f   %f   %f   %f   %f    %f    %f    %f     %f\n',....
-        ppp(ij,1),ppp(ij,2),unum(ij,NtimeStep+1),unum(ij,NtimeStep/2+1),unum(ij,NtimeStep/4+1),unum(ij,NtimeStep/8+1),uerr(ij),...
-        vecVel(ij,1), vecVel(ij,2), norm(vecVel(ij,:)));
-end
-
-for ij=1:nem
-    fprintf(fid11,'%d  %d  %d\n', ttt(ij,1),ttt(ij,2),ttt(ij,3));
-end
-    
-fclose(fid11);
+% 
+% fid11=fopen('yuntuYaphaConst0p55.plt','w');
+% nem=size(ttt,1);
+% fprintf(fid11, 'TITLE="u numerical solution"\n');
+% fprintf(fid11, 'VARIABLES="x","y","u(t=%.2f)","u(t= %.2f)","u(t= %.2f)","u(t= %.2f)","error", "x-velocity","y-velocity", "magnitudeV" \n',Tend,Tend/2,Tend/4,Tend/8);
+% fprintf(fid11, 'ZONE N=%d,E=%d, F=FEPOINT, ET=TRIANGLE\n',npoin,nem);
+% for ij=1:npoin
+%     fprintf(fid11,'%f   %f   %f   %f   %f   %f    %f    %f    %f     %f\n',....
+%         ppp(ij,1),ppp(ij,2),unum(ij,NtimeStep+1),unum(ij,NtimeStep/2+1),unum(ij,NtimeStep/4+1),unum(ij,NtimeStep/8+1),uerr(ij),...
+%         vecVel(ij,1), vecVel(ij,2), norm(vecVel(ij,:)));
+% end
+% 
+% for ij=1:nem
+%     fprintf(fid11,'%d  %d  %d\n', ttt(ij,1),ttt(ij,2),ttt(ij,3));
+% end
+%     
+% fclose(fid11);
 

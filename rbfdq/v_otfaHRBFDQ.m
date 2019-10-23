@@ -28,17 +28,18 @@ global mapNormalNeumBndry pointNeumboun  vecVel
 meshden=0.1; %0.16, 0.08
 
 tic
-examp=1; %different case
+examp=31; %different case
 domain=44; %1 [0,1]*[0,1],2: unit circle . 33: star with 90 degree circle
             %44 any su2 grid
 su2mesh = 1;
 %filenmsu2='nonRegularDom3.su2';
-%filenmsu2='nonRegularN6_3.su2';
+filenmsu2='nonRegularN6_3.su2';
+%filenmsu2='nonRegularN6_1.su2'; % N=501
 %filenmsu2='part4star.su2';
 %filenmsu2='circleu1esssUni2.su2'; 
-%filenmsu2='circleu1esssUni2.su2'; 
-%filenmsu2='circleF00Neu.su2'; 
-filenmsu2='circleF02NeuN2.su2'; 
+%filenmsu2='circleF00Neu.su2';  %N=214 for grid convergence
+%filenmsu2='circleF01Neu.su2';  %N=421 for grid convergence
+%filenmsu2='circleF02NeuN2.su2'; %N=873
 %filenmsu2='circleF02Dir2.su2'; 
 %filenmsu2='b4MatlabDir.su2'; % for air pollution model
 
@@ -85,7 +86,7 @@ switch examp
         vecSp1=@(x,y,t) (1 );
         vecSp2=@(x,y,t) (1 );        
         vo_alpha=@(x,y,t) (0.8-0.1*cos(x.*t).* sin(x)-0.1*cos(y.*t).*sin(y));
-       % vo_alpha=@(x,y,t) (0.5);
+    %    vo_alpha=@(x,y,t) (1.0);
         sourceF=@(x,y,t) (2*t.^(2-vo_alpha(x,y,t))./gamma(3-vo_alpha(x,y,t)) ...
             +2*x+2*y-4);
         uexact=@(x,y,t) (x.^2+y.^2+t.^2);
@@ -637,13 +638,13 @@ plot3(ppp(:,1),ppp(:,2), abs(uerr), 'b.','MarkerSize',15);
 zlabel('Error');
 xlabel('x'); ylabel('y');
 grid on
-fid11=fopen('yuntuHRBFDQ.plt','w');
+fid11=fopen('GaussPulseHRBFDQ.plt','w');
 nem=size(ttt,1);
 fprintf(fid11, 'TITLE="u numerical solution"\n');
 fprintf(fid11, 'VARIABLES="x","y","u","error"\n');
 fprintf(fid11, 'ZONE N=%d,E=%d, F=FEPOINT, ET=TRIANGLE\n',npoin,nem);
 for ij=1:npoin
-    fprintf(fid11,'%f   %f   %f   %f\n',ppp(ij,1),ppp(ij,2),unum(ij,NtimeStep+1),uerr(ij));
+    fprintf(fid11,'%f   %f   %f   %f\n',ppp(ij,1),ppp(ij,2),unum(ij,NtimeStep+1),abs(uerr(ij)));
 end
 
 for ij=1:nem
