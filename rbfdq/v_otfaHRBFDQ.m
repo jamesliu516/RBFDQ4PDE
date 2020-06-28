@@ -33,9 +33,9 @@ domain=44; %1 [0,1]*[0,1],2: unit circle . 33: star with 90 degree circle
             %44 any su2 grid
 su2mesh = 1;
 %filenmsu2='nonRegularDom3.su2';
-filenmsu2='nonRegularN6_3.su2';
+%filenmsu2='nonRegularN6_3.su2';
 %filenmsu2='nonRegularN6_1.su2'; % N=501
-%filenmsu2='part4star.su2';
+filenmsu2='part4star.su2';
 %filenmsu2='circleu1esssUni2.su2'; 
 %filenmsu2='circleF00Neu.su2';  %N=214 for grid convergence
 %filenmsu2='circleF01Neu.su2';  %N=421 for grid convergence
@@ -617,7 +617,7 @@ hold off
 plot(ppp(:,1),ppp(:,2),'b.','MarkerSize',12);
 hold on
 plot(ppp(pointboun,1),ppp(pointboun,2),'b.','MarkerSize',10);
-plot(ppp(pointNeumboun,1),ppp(pointNeumboun,2),'r*','MarkerSize',10);
+plot(ppp(pointNeumboun,1),ppp(pointNeumboun,2),'r*','MarkerSize',6);
 xlabel('x'); ylabel('y');
 
 if domain==1
@@ -638,7 +638,7 @@ plot3(ppp(:,1),ppp(:,2), abs(uerr), 'b.','MarkerSize',15);
 zlabel('Error');
 xlabel('x'); ylabel('y');
 grid on
-fid11=fopen('GaussPulseHRBFDQ.plt','w');
+fid11=fopen('GPHRBFDQHybridBoundary.plt','w');
 nem=size(ttt,1);
 fprintf(fid11, 'TITLE="u numerical solution"\n');
 fprintf(fid11, 'VARIABLES="x","y","u","error"\n');
